@@ -6,9 +6,8 @@
     /* Palette generated with coolors.co: #1E1E24, #ADA8B6, #FFEEDB, #55D6C2, #0FA3B1 */
     --background-color: #1E1E24;
     --text-color: #ADA8B6;
-    --link-color: #8F8E8B; /*#FFEEDB;*/
+    --link-color: #8F8E8B;
     --header-color: #55D6C2;
-    --unused-color: #0FA3B1;
 
     --body-vertical-margin: 3%;
     --body-horizontal-small-margin: 3%;
