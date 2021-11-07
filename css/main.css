@@ -57,11 +57,6 @@ h1, h2, h3 {
     color: var(--header-color);
 }
 
-p {
-    text-align: justify;
-    text-justify: inter-word;
-}
-
 nav ul {
     padding: 0;
     list-style: none;
