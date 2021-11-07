@@ -1,5 +1,5 @@
 window.onload = () => {
-    document.querySelectorAll("pre code").forEach((el) => {
-        hljs.highlightElement(el);
-    });
+    document
+        .querySelectorAll("pre code")
+        .forEach(hljs.highlightElement);
 }
