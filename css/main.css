@@ -22,7 +22,7 @@
 
 /* https://stackoverflow.com/questions/47286123/different-css-margins-for-mobile-desktop-without-multiple-block-content */
 
-/* Smaller devices get */
+/* Smaller devices get only a tiny margin */
 @media screen {
     body {
         margin: var(--body-vertical-margin) var(--body-horizontal-small-margin);
