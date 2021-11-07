@@ -1,0 +1,75 @@
+/* ╔═══════════╗
+   ║ Variables ║
+   ╚═══════════╝ */
+
+:root {
+    /* Palette generated with coolors.co */
+    --background-color: #1E1E24;
+    --text-color: #ADA8B6;
+    --link-color: #FFEEDB;
+    --header-color: #55D6C2;
+    --unused-color: #0FA3B1;
+
+    --body-vertical-margin: 3%;
+    --body-horizontal-small-margin: 3%;
+    --body-horizontal-medium-margin: 10%;
+    --body-horizontal-big-margin: 20%;
+}
+
+/* ╔══════════════════════╗
+   ║ Media content sizing ║
+   ╚══════════════════════╝ */
+
+/* https://stackoverflow.com/questions/47286123/different-css-margins-for-mobile-desktop-without-multiple-block-content */
+
+/* Smaller devices get */
+@media screen {
+    body {
+        margin: var(--body-vertical-margin) var(--body-horizontal-small-margin);
+    }
+}
+
+/* Tablets, landscape iPad, lo-res laptops and desktops */
+@media screen and (min-width: 801px) {
+    body {
+        margin: var(--body-vertical-margin) var(--body-horizontal-medium-margin);
+    }
+}
+
+/* From big landscape tablets onwards */
+@media screen and (min-width: 1025px) {
+    body {
+        margin: var(--body-vertical-margin) var(--body-horizontal-big-margin);
+    }
+}
+
+:root {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-size: 15;
+}
+
+a {
+    color: var(--link-color);
+}
+
+h1, h2, h3 {
+    color: var(--header-color);
+}
+
+p {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+nav ul {
+    padding: 0;
+    list-style: none;
+    line-height: 180%;
+
+    background-color: #00f;
+}
+
+span.file-name {
+    font-family: monospace;
+}
