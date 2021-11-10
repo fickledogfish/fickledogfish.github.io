@@ -9,6 +9,16 @@
     <meta name="author" content="Aníbal Vilela">
     <meta name="description" content="Uma descrição dessa página">
 
+    <!--
+        FIXME: add these to the other pages.
+
+        https://stackoverflow.com/a/33545841
+
+        https://stackoverflow.com/a/55959207
+    -->
+    <base target="_blank">
+    <meta name="referrer" content="no-referrer">
+
     <link rel="stylesheet" href="/deps/highlight/style.min.css">
     <link rel="stylesheet" href="/css/main.css">
 
@@ -21,9 +31,9 @@
     <main>
     <h1>Testes em Go</h1>
 
-    <p>Esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em testes de unidade.</p>
+    <p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em bibliotecas de testes de unidade.</p>
 
-    <p>Primeiramente, vamos criar um projeto com <code>go mod init example.com</code>. Não é nada muito complicado, apenas um servidor com algumas rotas:</p>
+    <p>Primeiramente, vamos criar uma API; nada muito complicado, somente algumas rotas para termos o que testar:</p>
 
     <pre><code class="language-go">
     package main
@@ -57,7 +67,7 @@
     }
     </code></pre>
 
-    <p>E vamos escrever nossos testes em <span class="file-name">main_test.go</span></p>
+    <p>Em Go, testes são colocados em um arquivo com o sufixo <span class="file-name">*_test.go</span>, pertencentes ao mesmo pacote que o arquivo a ser testado, e localizado ao lado dele na árvore de diretórios. Então, vamos escrever nossos testes em <span class="file-name">main_test.go</span></p>
 
     <pre><code class="language-go">
     package main
@@ -67,8 +77,6 @@
         "net/http"
         "net/http/httptest"
         "testing"
-
-        "gopkg.in/check.v1"
     )
 
     func TestGETRoot(t *testing.T) {
@@ -91,7 +99,7 @@
     }
     </code></pre>
 
-    <p>Você pode esperar que o teste esteja correto, porém se depara com:</p>
+    <p>Aparentemente pode parecer estar tudo ok, porém o teste falha com um erro... inusitado:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -104,11 +112,13 @@
     FAIL
     </code></pre>
 
-    <p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️</p>
+    <p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️ Esse resultado não é imediatamente óbvio (ao menos não para mim), mas depois de algum tempo você pode resolver experimentar usar a especificação <a href="https://pkg.go.dev/fmt"><code>%#v</code></a> para formatar os resultados:</p>
 
     <pre><code class="language-go">
     t.Errorf("Expected %#v, but got %#v", "hello", string(responseText))
     </code></pre>
+
+    <p>E então obtemos algo mais esclarecedor:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -127,7 +137,7 @@
 
     <p><a href="http://github.com/go-check/check">gocheck</a></p>
 
-    <p>Você pode baixar o código fonte <a href="/resources/fossil/go-testing.fossil">aqui</a> (admin admin).</p>
+    <p>Você pode baixar o código <a href="/resources/fossil/go-testing.fossil">aqui</a>. Ele usiliza o <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a> para controle de versão, e cada um dos tópicos discorridos nesse texto se encontra em uma branch. O usuário e a senha são ambos <var>admin</var>.</p>
     </main>
 
     <!-- Leave these at the end -->
