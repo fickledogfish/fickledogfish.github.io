@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Título do post vai aqui</title>
+    <meta name="author" content="Aníbal Vilela">
+    <meta name="description" content="Uma descrição dessa página">
+
+    <link rel="stylesheet" href="/deps/highlight/style.min.css">
+    <link rel="stylesheet" href="/css/main.css">
+
+    <link rel="icon" type="image/x-icon" href="/images/icons/favicon.ico">
+</head>
+
+<body>
+    <html-include src="/common-html/nav-menu.html"></html-include>
+
+    <main>
+    <h1>Testes em Go</h1>
+
+    <p>Esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em testes de unidade.</p>
+
+    <p>Primeiramente, vamos criar um projeto com <code>go mod init example.com</code>. Não é nada muito complicado, apenas um servidor com algumas rotas:</p>
+
+    <pre><code class="language-go">
+    package main
+
+    import (
+        "fmt"
+        "net/http"
+
+        "github.com/gorilla/mux"
+    )
+
+    func main() {
+        http.ListenAndServe(":8080", newRouter())
+    }
+
+    func newRouter() http.Handler {
+        router := mux.NewRouter()
+        router.
+            HandleFunc("/", func(res http.ResponseWriter, _ *http.Request) {
+                fmt.Fprintln(res, "hello")
+            }).
+            Methods(http.MethodGet)
+
+        router.
+            HandleFunc("/greet/{name}", func(response http.ResponseWriter, request *http.Request) {
+                name := mux.Vars(request)["name"]
+                fmt.Fprintf(response, "hallo, %s", name)
+            }).Methods(http.MethodGet)
+
+        return router
+    }
+    </code></pre>
+
+    <p>E vamos escrever nossos testes em <span class="file-name">main_test.go</span></p>
+
+    <pre><code class="language-go">
+    package main
+
+    import (
+        "io/ioutil"
+        "net/http"
+        "net/http/httptest"
+        "testing"
+
+        "gopkg.in/check.v1"
+    )
+
+    func TestGETRoot(t *testing.T) {
+        server := httptest.NewServer(NewRouter())
+
+        response, err := http.Get(server.URL + "/")
+        if err != nil {
+            t.Errorf("Unexpected error while getting %s: %s", server.URL, err)
+        }
+        defer response.Body.Close()
+
+        responseText, err := ioutil.ReadAll(response.Body)
+        if err != nil {
+            t.Errorf("Unexpected error while reading response: %v", err)
+        }
+
+        if string(responseText) != "hello" {
+            t.Errorf("Expected %v, but got %v", "hello", string(responseText))
+        }
+    }
+    </code></pre>
+
+    <p>Você pode esperar que o teste esteja correto, porém se depara com:</p>
+
+    <pre><code class="language-plaintext">
+    ?       example.com/test        [no test files]
+    ?       example.com/test/config [no test files]
+    --- FAIL: TestGETRoot (0.00s)
+        routes_test.go:27: Expected hello, but got hello
+    OK: 1 passed
+    FAIL
+    FAIL    example.com/test/routes 0.564s
+    FAIL
+    </code></pre>
+
+    <p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️</p>
+
+    <pre><code class="language-go">
+    t.Errorf("Expected %#v, but got %#v", "hello", string(responseText))
+    </code></pre>
+
+    <pre><code class="language-plaintext">
+    ?       example.com/test        [no test files]
+    ?       example.com/test/config [no test files]
+    --- FAIL: TestGETRoot (0.00s)
+        routes_test.go:27: Expected "hello", but got "hello\n"
+    OK: 1 passed
+    FAIL
+    FAIL    example.com/test/routes 0.560s
+    FAIL
+    </code></pre>
+
+    <p>Mas mesmo assim ainda temos de escrever manualmente as mensagens de erro &mdash; ou criar funções para automatizar isso. Não haveria uma forma mais conveniente?</p>
+
+    <h2>Introduzindo <var>gocheck</var></h2>
+
+    <p><a href="http://github.com/go-check/check">gocheck</a></p>
+    </main>
+
+    <!-- Leave these at the end -->
+    <script src="/deps/highlight/highlight.min.js"></script>
+    <script type="module" src="/js/main.js"></script>
+</body>
+
+</html>
