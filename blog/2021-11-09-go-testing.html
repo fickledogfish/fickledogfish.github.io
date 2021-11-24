@@ -31,11 +31,12 @@
     <main>
     <h1>Testes em Go</h1>
 
-    <p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em bibliotecas de testes de unidade.</p>
+    <p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em bibliotecas de testes de unidade. Todo o código fonte descrito pode ser baixado <a href="/resources/fossil/go-testing.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a>, onde cada tópico possui uma branch dedicada; caso necessário, o usuário e a senha são ambos <var>admin</var>.</p>
 
     <p>Primeiramente, vamos criar uma API; nada muito complicado, somente algumas rotas para termos o que testar:</p>
 
     <pre><code class="language-go">
+    // main.go
     package main
 
     import (
@@ -61,15 +62,19 @@
             HandleFunc("/greet/{name}", func(response http.ResponseWriter, request *http.Request) {
                 name := mux.Vars(request)["name"]
                 fmt.Fprintf(response, "hallo, %s", name)
-            }).Methods(http.MethodGet)
+            }).
+            Methods(http.MethodGet)
 
         return router
     }
     </code></pre>
 
-    <p>Em Go, testes são colocados em um arquivo com o sufixo <span class="file-name">*_test.go</span>, pertencentes ao mesmo pacote que o arquivo a ser testado, e localizado ao lado dele na árvore de diretórios. Então, vamos escrever nossos testes em <span class="file-name">main_test.go</span></p>
+    <p>(Estou me adiantando aqui e separando a definição das rotas em uma função própria. Isso será relevante na hora de criar um servidor para testes.)</p>
 
+    <p>Em Go, testes são colocados em um arquivo com o sufixo <span class="file-name">*_test.go</span> ao lado do arquivo a ser testado na árvore de diretórios. Os arquivos de testes podem ou não pertencer ao mesmo pacote que o arquivo a ser testado, a diferença principal sendo o acesso a funções privadas &mdash; testes <em>whitebox</em> pertencem ao mesmo pacote, enquanto testes <em>blackbox</em> não.</p>
+    
     <pre><code class="language-go">
+    // main_test.go
     package main
 
     import (
@@ -90,16 +95,18 @@
 
         responseText, err := ioutil.ReadAll(response.Body)
         if err != nil {
-            t.Errorf("Unexpected error while reading response: %v", err)
+            t.Errorf("Unexpected error while reading response: %s", err)
         }
 
         if string(responseText) != "hello" {
-            t.Errorf("Expected %v, but got %v", "hello", string(responseText))
+            t.Errorf("Expected %s, but got %s", "hello", string(responseText))
         }
     }
     </code></pre>
 
-    <p>Aparentemente pode parecer estar tudo ok, porém o teste falha com um erro... inusitado:</p>
+    <p>Nativamente, a Go possui ferramentas para testes <a href="http://go.dev/doc/tutorial/add-a-test">de unidade</a>, <a href="https://pkg.go.dev/testing#hdr-Benchmarks"><em>benchmarks</em></a> e <a href="https://pkg.go.dev/testing#hdr-Examples">exemplos</a> (com <a href="https://go.dev/blog/fuzz-beta"><em>fuzzing</em></a> a caminho na versão 1.18), e utilizá-las é bem simples: basta escrever código em Go com alguns pacotes auxiliares, como <a href="https://pkg.go.dev/net/http/httptest"><code>httptest</code></a> e <a href="https://pkg.go.dev/testing#T"><code>testing</code></a> &mdash; sobre esse último, é importante notar que sua API possui funções para terminar a execução do teste atual (<a href="https://pkg.go.dev/testing#T.FailNow"><code>FailNow</code></a>, <a href="https://pkg.go.dev/testing#T.Fatal"><code>Fatal</code></a> e <a href="https://pkg.go.dev/testing#T.Fatalf"><code>Fatalf</code></a>) ou continuar apesar do erro (<a href="https://pkg.go.dev/testing#T.Fail"><code>Fail</code></a>, <a href="https://pkg.go.dev/testing#T.Error"><code>Error</code></a> e <a href="https://pkg.go.dev/testing#T.Errorf"><code>Errorf</code></a>).</p>
+
+    <p>Essa simplicidade diminui o atrito para ler e entender o código dos testes, porém ela também traz suas surpresas; se você tentar rodar os testes como descritos acima, encontrará um erro inusitado:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -118,7 +125,7 @@
     t.Errorf("Expected %#v, but got %#v", "hello", string(responseText))
     </code></pre>
 
-    <p>E então obtemos algo mais esclarecedor:</p>
+    <p>E então obtém-se um resultado mais esclarecedor:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -133,11 +140,51 @@
 
     <p>Mas mesmo assim ainda temos de escrever manualmente as mensagens de erro &mdash; ou criar funções para automatizar isso. Não haveria uma forma mais conveniente?</p>
 
-    <h2>Introduzindo <var>gocheck</var></h2>
+    <h2>Introduzindo <a href="http://github.com/go-check/check">gocheck</a></h2>
 
-    <p><a href="http://github.com/go-check/check">gocheck</a></p>
+    <pre><code class="language-go">
+    package main
 
-    <p>Você pode baixar o código <a href="/resources/fossil/go-testing.fossil">aqui</a>. Ele usiliza o <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a> para controle de versão, e cada um dos tópicos discorridos nesse texto se encontra em uma branch. O usuário e a senha são ambos <var>admin</var>.</p>
+    import (
+        "io/ioutil"
+        "net/http"
+        "net/http/httptest"
+        "testing"
+
+        "gopkg.in/check.v1"
+    )
+
+    func Test(t *testing.T) { check.TestingT(t) }
+
+    type RootPathTestSuite struct {
+        server *httptest.Server
+    }
+
+    var _ = check.Suite(&RootPathTestSuite{})
+
+    func (s *RootPathTestSuite) SetUpTest(c *check.C) {
+        s.server = httptest.NewServer(newRouter())
+    }
+
+    func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
+        response, err := http.Get(s.server.URL + "/")
+        c.Assert(err, check.IsNil)
+        defer response.Body.Close()
+
+        byteData, err := ioutil.ReadAll(response.Body)
+        c.Assert(err, check.IsNil)
+
+        data := string(byteData)
+        c.Assert(data, check.Equals, "hello\n")
+    }
+    </code></pre>
+
+    <p>Sua configuração é um pouco mais envolvida, então vamos em partes:</p>
+
+    <pre><code class="language-go">
+    func Test(t *testing.T) { check.TestingT(t) }
+    </code></pre>
+
     </main>
 
     <!-- Leave these at the end -->
