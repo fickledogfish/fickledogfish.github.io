@@ -99,7 +99,7 @@
 
     <p>Nativamente, a Go possui ferramentas para testes <a href="http://go.dev/doc/tutorial/add-a-test">de unidade</a>, <a href="https://pkg.go.dev/testing#hdr-Benchmarks"><em>benchmarks</em></a> e <a href="https://pkg.go.dev/testing#hdr-Examples">exemplos</a> (com <a href="https://go.dev/blog/fuzz-beta"><em>fuzzing</em></a> a caminho na versão 1.18), e utilizá-las é bem simples: basta escrever código em Go com alguns pacotes auxiliares, como <a href="https://pkg.go.dev/net/http/httptest"><code>httptest</code></a> e <a href="https://pkg.go.dev/testing#T"><code>testing</code></a> &mdash; sobre esse último, é importante notar que sua API possui funções para terminar a execução do teste atual (<a href="https://pkg.go.dev/testing#T.FailNow"><code>FailNow</code></a>, <a href="https://pkg.go.dev/testing#T.Fatal"><code>Fatal</code></a> e <a href="https://pkg.go.dev/testing#T.Fatalf"><code>Fatalf</code></a>) ou continuar apesar do erro (<a href="https://pkg.go.dev/testing#T.Fail"><code>Fail</code></a>, <a href="https://pkg.go.dev/testing#T.Error"><code>Error</code></a> e <a href="https://pkg.go.dev/testing#T.Errorf"><code>Errorf</code></a>).</p>
 
-    <p>Essa simplicidade diminui o atrito para ler e entender o código dos testes, porém ela também traz suas surpresas; se você tentar rodar os testes como descritos acima, encontrará um erro inusitado:</p>
+    <p>Essa simplicidade diminui o atrito para ler e entender o código dos testes, porém ela também traz suas surpresas; se você tentar rodar os testes usando <code class=language-plaintext>go test ./...</code>, encontrará um erro inusitado:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -135,6 +135,8 @@
 
     <h2>Introduzindo <a href="http://github.com/go-check/check">gocheck</a></h2>
 
+    <p><a href="http://github.com/go-check/check">Gocheck</a> é uma das (<a href="https://github.com/avelino/awesome-go#testing">muitas</a>) bibliotecas de teste em Go, e visa expandir as funcionalidades da biblioteca padrão com asserções e suítes de testes; por conta disso, seu <em>setup</em> é um pouco mais envolvido:</p>
+
     <pre><code class="language-go">
     package main
 
@@ -168,14 +170,76 @@
         c.Assert(err, check.IsNil)
 
         data := string(byteData)
-        c.Assert(data, check.Equals, "hello\n")
+        c.Assert(data, check.Equals, "hello")
     }
     </code></pre>
 
-    <p>Sua configuração é um pouco mais envolvida, então vamos em partes:</p>
+    <p>Separando em partes, os pontos mais interessantes são:</p>
 
     <pre><code class="language-go">
     func Test(t *testing.T) { check.TestingT(t) }
+    </code></pre>
+
+    <p>Essa linha liga <code class="language-go">gocheck</code> à ferramenta de teste da linguagem, mas ainda não temos nenhum teste definido. Isso porque primeiro precisamos de uma suíte de testes:</p>
+
+    <pre><code class="language-go">
+    type RootPathTestSuite struct {
+        server *httptest.Server
+    }
+
+    var _ = check.Suite(&RootPathTestSuite{})
+    </code></pre>
+
+    <p>As suítes são definidas como <code class="language-go">struct</code>s que podem ou não conter dados. Nesse caso, como todo teste depende da criação do servidor, esse será passado através da suíte; para inicializá-lo, temos duas opções: uma única vez antes de todos os testes, ou antes de cada teste. Para o primeiro caso, há a função <code class="language-go">func (s *RootPathTestSuite) SetUpSuite(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownSuite(c *C)</code>); para o segundo, <code class="language-go">func (s *RootPathTestSuite) SetUpTest(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownTest(c *C)</code>). Para esse exemplo, decidi usar apenas o segundo:</p>
+
+    <pre><code class="language-go">
+    func (s *RootPathTestSuite) SetUpTest(c *check.C) {
+        s.server = httptest.NewServer(newRouter())
+    }
+    </code></pre>
+
+    <p>E a partir desse ponto pode-se escrever testes de uma forma bem parecida com os anteriores, com uma leve modificação na assinatura:</p>
+
+    <pre><code class="language-go">
+    func (s *RootPathTestSuite) TestGETRoot(c *check.C) { }
+    </code></pre>
+
+    <p>As funções ainda precisam ser nomeadas <code class="language-plaintext">Test*</code>, porém agora elas também tomam como argumento um <em>receiver</em> da suíte em questão.</p>
+
+    <p>Finalmente, podemos reescrever o teste em questão. Porém, ao invés de manualmente verificar erros, pode-se utilizar as asserções dadas pela biblioteca através da função <a href="https://pkg.go.dev/gopkg.in/check.v1#C.Assert"><code class="language-go">c.Assert</code></a>. Note que ela tem dois parâmetros obrigatórios: o valor obtido e algo que implemente a interface <code class="language-plaintext">Checker</code>. O terceiro argumento é o valor esperado (e nem todos os <code class="language-plaintext">Checker</code>s necessitam dele), e você ainda pode adicionar <a href="https://pkg.go.dev/gopkg.in/check.v1#Commentf">um comentário para ser impresso junto à asserção</a>.</p>
+
+    <p>Voltando ao exemplo, pode-se usar <code class="language-plaintext">c.Assert(err, check.IsNil)</code> para verificar os erros para verificar se <code class="language-plaintext">http.Get</code> ou <code class="language-plaintext">ioutil.ReadAll</code> encontraram algum problema, e <code class="language-plaintext">c.Assert(data, check.Equals, "hello")</code> para testar o retorno do endpoint:</p>
+
+    <pre><code class="language-go">
+    func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
+        response, err := http.Get(s.server.URL + "/")
+        c.Assert(err, check.IsNil)
+        defer response.Body.Close()
+
+        byteData, err := ioutil.ReadAll(response.Body)
+        c.Assert(err, check.IsNil)
+
+        data := string(byteData)
+        c.Assert(data, check.Equals, "hello")
+    }
+    </code></pre>
+
+    <p>Nota-se que, ao rodar os testes, imediatamente obtém-se um resultado claro sobre o erro:</p>
+
+    <pre><code class="language-plaintext">
+    ----------------------------------------------------------------------
+    FAIL: main_test.go:25: RootPathTestSuite.TestGETRoot
+    
+    main_test.go:34:
+        c.Assert(data, check.Equals, "hello")
+    ... obtained string = "hello\n"
+    ... expected string = "hello"
+    
+    OOPS: 2 passed, 1 FAILED
+    --- FAIL: Test (0.00s)
+    FAIL
+    FAIL	example.com/test	0.553s
+    FAIL
     </code></pre>
 
     </main>
