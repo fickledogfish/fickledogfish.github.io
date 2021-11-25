@@ -4,6 +4,6 @@ window.customElements.define("html-include", HTMLInclude);
 
 window.onload = () => {
     document
-        .querySelectorAll("pre code")
+        .querySelectorAll("pre code[class^=\"language-\"]")
         .forEach(hljs.highlightElement);
 }
