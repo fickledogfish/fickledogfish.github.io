@@ -11,7 +11,7 @@
     <ttl>1440</ttl>
 
     <item>
-    <title>Testes em Go</title>
+    <title>Criando testes em Go</title>
     <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
     <link>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</link>
     <guid>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</guid>

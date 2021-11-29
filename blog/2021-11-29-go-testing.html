@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Testes em Go</title>
+    <title>Criando testes em Go</title>
     <meta name="author" content="Aníbal Vilela">
     <meta name="description" content="Introdução a testes de unidade em Go usando as ferramentas nativas e a biblioteca gocheck.">
 
@@ -19,9 +19,9 @@
     <html-include src="/common-html/nav-menu.html"></html-include>
 
     <main>
-    <h1>Testes em Go</h1>
+    <h1>Criando testes em Go</h1>
 
-    <p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em bibliotecas de testes de unidade. Todo o código fonte descrito pode ser baixado <a href="/resources/fossil/go-testing.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a>, onde cada tópico possui uma branch dedicada; caso necessário, o usuário e a senha são ambos <var>admin</var>.</p>
+    <p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em testes de unidade. Todo o código fonte descrito pode ser baixado <a href="/resources/fossil/go-testing.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a>, onde cada tópico possui uma branch dedicada; caso necessário, o usuário e a senha são ambos <var>admin</var>.</p>
 
     <p>Primeiramente, vamos criar uma API; nada muito complicado, somente algumas rotas para termos o que testar:</p>
 
@@ -94,9 +94,9 @@
     }
     </code></pre>
 
-    <p>Nativamente, a Go possui ferramentas para testes <a href="http://go.dev/doc/tutorial/add-a-test">de unidade</a>, <a href="https://pkg.go.dev/testing#hdr-Benchmarks"><em>benchmarks</em></a> e <a href="https://pkg.go.dev/testing#hdr-Examples">exemplos</a> (com <a href="https://go.dev/blog/fuzz-beta"><em>fuzzing</em></a> a caminho na versão 1.18), e utilizá-las é bem simples: basta escrever código em Go com alguns pacotes auxiliares, como <a href="https://pkg.go.dev/net/http/httptest"><code>httptest</code></a> e <a href="https://pkg.go.dev/testing#T"><code>testing</code></a> &mdash; sobre esse último, é importante notar que sua API possui funções para terminar a execução do teste atual (<a href="https://pkg.go.dev/testing#T.FailNow"><code>FailNow</code></a>, <a href="https://pkg.go.dev/testing#T.Fatal"><code>Fatal</code></a> e <a href="https://pkg.go.dev/testing#T.Fatalf"><code>Fatalf</code></a>) ou continuar apesar do erro (<a href="https://pkg.go.dev/testing#T.Fail"><code>Fail</code></a>, <a href="https://pkg.go.dev/testing#T.Error"><code>Error</code></a> e <a href="https://pkg.go.dev/testing#T.Errorf"><code>Errorf</code></a>).</p>
+    <p>Nativamente, a Go possui ferramentas para testes <a href="http://go.dev/doc/tutorial/add-a-test">de unidade</a>, <a href="https://pkg.go.dev/testing#hdr-Benchmarks"><em>benchmarks</em></a> e <a href="https://pkg.go.dev/testing#hdr-Examples">exemplos</a> (com <a href="https://go.dev/blog/fuzz-beta"><em>fuzzing</em></a> a caminho na versão 1.18), e utilizá-las é bem simples: basta escrever código em Go com alguns pacotes auxiliares, como <a href="https://pkg.go.dev/net/http/httptest"><code>httptest</code></a> e <a href="https://pkg.go.dev/testing#T"><code>testing</code></a>. Sobre esse último, é importante notar que sua API possui funções para terminar a execução do teste atual (<a href="https://pkg.go.dev/testing#T.FailNow"><code>FailNow</code></a>, <a href="https://pkg.go.dev/testing#T.Fatal"><code>Fatal</code></a> e <a href="https://pkg.go.dev/testing#T.Fatalf"><code>Fatalf</code></a>) ou continuar apesar do erro (<a href="https://pkg.go.dev/testing#T.Fail"><code>Fail</code></a>, <a href="https://pkg.go.dev/testing#T.Error"><code>Error</code></a> e <a href="https://pkg.go.dev/testing#T.Errorf"><code>Errorf</code></a>), mas essa distinção será ignorada nesse post.</p>
 
-    <p>Essa simplicidade diminui o atrito para ler e entender o código dos testes, porém ela também traz suas surpresas; se você tentar rodar os testes usando <code class=language-plaintext>go test ./...</code>, encontrará um erro inusitado:</p>
+    <p>Essa simplicidade escrever testes diminui o atrito para ler e entender seu código, porém também traz suas surpresas; se você tentar rodar os testes usando <code class=language-plaintext>go test ./...</code>, encontrará um erro inusitado:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -109,13 +109,13 @@
     FAIL
     </code></pre>
 
-    <p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️ Esse resultado não é imediatamente óbvio (ao menos não para mim), mas depois de algum tempo você pode resolver experimentar usar a especificação <a href="https://pkg.go.dev/fmt"><code>%#v</code></a> para formatar os resultados:</p>
+    <p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️ Esse resultado não é imediatamente óbvio (ao menos não foi para mim quando me deparei com ele pela primeira vez), mas, depois de algum tempo olhando para o resultado, você pode pensar em experimentar a especificação <a href="https://pkg.go.dev/fmt"><code>%#v</code></a> para formatar os resultados:</p>
 
     <pre><code class="language-go">
     t.Errorf("Expected %#v, but got %#v", "hello", string(responseText))
     </code></pre>
 
-    <p>E então obtém-se um resultado mais esclarecedor:</p>
+    <p>E então obtém-se uma resposta mais esclarecedora:</p>
 
     <pre><code class="language-plaintext">
     ?       example.com/test        [no test files]
@@ -128,7 +128,7 @@
     FAIL
     </code></pre>
 
-    <p>Mas mesmo assim ainda temos de escrever manualmente as mensagens de erro &mdash; ou criar funções para automatizar isso. Não haveria uma forma mais conveniente?</p>
+    <p>Mas mesmo assim ainda temos de escrever manualmente as mensagens de erro &mdash; ou criar funções para automatizar isso &mdash;, o que pode levar a erros como o demonstrado. Não haveria uma forma mais conveniente?</p>
 
     <h2>Introduzindo <a href="http://github.com/go-check/check">gocheck</a></h2>
 
@@ -177,7 +177,7 @@
     func Test(t *testing.T) { check.TestingT(t) }
     </code></pre>
 
-    <p>Essa linha liga <code class="language-go">gocheck</code> à ferramenta de teste da linguagem, mas ainda não temos nenhum teste definido. Isso porque primeiro precisamos de uma suíte de testes:</p>
+    <p>Essa linha liga <code class="language-go">gocheck</code> à ferramenta de teste da linguagem, mas ainda não temos nenhum teste definido. Isso porque primeiro precisamos definir uma suíte, que nada mais são do que <code class="language-go">struct</code>s:</p>
 
     <pre><code class="language-go">
     type RootPathTestSuite struct {
@@ -187,7 +187,9 @@
     var _ = check.Suite(&RootPathTestSuite{})
     </code></pre>
 
-    <p>As suítes são definidas como <code class="language-go">struct</code>s que podem ou não conter dados. Nesse caso, como todo teste depende da criação do servidor, esse será passado através da suíte; para inicializá-lo, temos duas opções: uma única vez antes de todos os testes, ou antes de cada teste. Para o primeiro caso, há a função <code class="language-go">func (s *RootPathTestSuite) SetUpSuite(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownSuite(c *C)</code>); para o segundo, <code class="language-go">func (s *RootPathTestSuite) SetUpTest(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownTest(c *C)</code>). Para esse exemplo, decidi usar apenas o segundo:</p>
+    <p>Como todos os testes dependem da criação do servidor, esse será passado através da suíte; para inicializá-lo, temos duas opções: uma única vez antes de todos os testes, ou repetidamente, antes de cada teste. Para o primeiro caso, há a função <code class="language-go">func (s *RootPathTestSuite) SetUpSuite(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownSuite(c *C)</code>); para o segundo, <code class="language-go">func (s *RootPathTestSuite) SetUpTest(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownTest(c *C)</code>).</p>
+
+    <p>Para esse exemplo, escolhi iniciar o servidor antes de cada teste:</p>
 
     <pre><code class="language-go">
     func (s *RootPathTestSuite) SetUpTest(c *check.C) {
