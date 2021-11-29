@@ -208,7 +208,7 @@
 
     <p>Finalmente, podemos reescrever o teste em questão. Porém, ao invés de manualmente verificar erros, pode-se utilizar as asserções dadas pela biblioteca através da função <a href="https://pkg.go.dev/gopkg.in/check.v1#C.Assert"><code class="language-go">c.Assert</code></a>. Note que ela tem dois parâmetros obrigatórios: o valor obtido e algo que implemente a interface <code class="language-plaintext">Checker</code>. O terceiro argumento é o valor esperado (e nem todos os <code class="language-plaintext">Checker</code>s necessitam dele), e você ainda pode adicionar <a href="https://pkg.go.dev/gopkg.in/check.v1#Commentf">um comentário para ser impresso junto à asserção</a>.</p>
 
-    <p>Voltando ao exemplo, pode-se usar <code class="language-plaintext">c.Assert(err, check.IsNil)</code> para verificar os erros para verificar se <code class="language-plaintext">http.Get</code> ou <code class="language-plaintext">ioutil.ReadAll</code> encontraram algum problema, e <code class="language-plaintext">c.Assert(data, check.Equals, "hello")</code> para testar o retorno do endpoint:</p>
+    <p>Voltando ao exemplo, pode-se usar <code class="language-plaintext">c.Assert(err, check.IsNil)</code> para verificar se <code class="language-plaintext">http.Get</code> ou <code class="language-plaintext">ioutil.ReadAll</code> encontraram algum problema, e <code class="language-plaintext">c.Assert(data, check.Equals, "hello")</code> para testar o retorno do endpoint:</p>
 
     <pre><code class="language-go">
     func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
@@ -224,7 +224,7 @@
     }
     </code></pre>
 
-    <p>Nota-se que, ao rodar os testes, imediatamente obtém-se um resultado claro sobre o erro:</p>
+    <p>Nota-se que, ao rodar os testes, imediatamente obtém-se um resultado claro sobre o erro com muito menos esforço:</p>
 
     <pre><code class="language-plaintext">
     ----------------------------------------------------------------------
