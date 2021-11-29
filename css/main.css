@@ -12,6 +12,10 @@
     --inline-code-text-color: #A6A2B0;
     --inline-code-background-color: #2E2E34;
 
+    --nav-menu-background-color: #1A1A1F;
+    --nav-menu-background-hover-color: #2A2A3F;
+    --nav-menu-border: 1px solid #8F8FAF;
+
     --body-vertical-margin: 3%;
     --body-horizontal-small-margin: 3%;
     --body-horizontal-medium-margin: 10%;
@@ -77,4 +81,37 @@ span.file-name, p code, p var {
     background: var(--inline-code-background-color);
     border-radius: var(--highlight-border-radius);
     padding: var(--highlight-padding);
+}
+
+/* ╔═════════════════╗
+   ║ Navigation menu ║
+   ╚═════════════════╝ */
+
+#navigation-menu ul {
+    border: var(--nav-menu-border);
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--nav-menu-background-color);
+}
+
+#navigation-menu ul li {
+    float: left;
+    border-right: var(--nav-menu-border);
+}
+
+#navigation-menu ul li:last-child {
+    float: right;
+    border-left: var(--nav-menu-border);
+}
+
+#navigation-menu ul li a {
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+}
+
+#navigation-menu ul li a:hover {
+    background-color: var(--nav-menu-background-hover-color);
 }
