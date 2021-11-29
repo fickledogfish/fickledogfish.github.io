@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
     <title>Blog pessoal</title>
     <description>Um blog sobre programação e outras coisas</description>
     <language>pt-br</language>
     <link>https://fickledogfish.github.io/</link>
-    <lastBuildDate>2021-11-29</lastBuildDate>
-    <pubDate>2021-11-29</pubDate>
+    <atom:link href="https://fickledogfish.github.io/resources/feeds/blog-full.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 29 Nov 2021 13:00:00 -0300</lastBuildDate>
+    <pubDate>Mon, 29 Nov 2021 13:00:00 -0300</pubDate>
     <ttl>1440</ttl>
 
     <item>
     <title>Testes em Go</title>
-    <author>anibal.vilela@vaivoa.com</author>
-    <link>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</link>
+    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+    <link>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</link>
+    <guid>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</guid>
     <description>Uma leve introdução a testes de unidade em Go</description>
-    <pubDate>2021-11-29</pubDate>
+    <pubDate>Mon, 29 Nov 2021 13:00:00 -0300</pubDate>
     </item>
 
     <item>
     <title>Criando um blog com Github Pages</title>
-    <author>anibal.vilela@vaivoa.com</author>
+    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
     <link>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</link>
+    <guid>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</guid>
     <description>Como esse blog foi criado</description>
-    <pubDate>2021-11-07</pubDate>
+    <pubDate>Tue, 09 Nov 2021 13:00:00 -0300</pubDate>
     </item>
 </channel>
 </rss>
