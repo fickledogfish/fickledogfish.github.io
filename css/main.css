@@ -75,7 +75,11 @@ h1, h2, h3 {
    ║ Highlighting ║
    ╚══════════════╝ */
 
-span.file-name, p code, p var {
+pre code[class^="language-"] {
+    border-radius: var(--highlight-border-radius);
+}
+
+span.file-name, span.tool-name, p code, p var {
     font-family: monospace;
     color: var(--inline-code-text-color);
     background: var(--inline-code-background-color);
@@ -88,6 +92,7 @@ span.file-name, p code, p var {
    ╚═════════════════╝ */
 
 #navigation-menu ul {
+    border-radius: var(--highlight-border-radius);
     border: var(--nav-menu-border);
     list-style-type: none;
     margin: 0;

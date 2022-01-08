@@ -11,6 +11,15 @@
     <ttl>1440</ttl>
 
     <item>
+    <title>Hoje não temos plot tuists</title>
+    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+    <link>https://fickledogfish.github.io/blog/2022-01-08-ios-apps-with-tuist.html</link>
+    <guid>https://fickledogfish.github.io/blog/2022-01-08-ios-apps-with-tuist.html</guid>
+    <description>Tentando substituir um pbxproj.</description>
+    <pubDate>Mon, 08 Jan 2022 13:00:00 -0300</pubDate>
+    </item>
+
+    <item>
     <title>Criando testes em Go</title>
     <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
     <link>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</link>
