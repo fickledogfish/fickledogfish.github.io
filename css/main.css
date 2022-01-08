@@ -75,7 +75,7 @@ h1, h2, h3 {
    ║ Highlighting ║
    ╚══════════════╝ */
 
-span.file-name, p code, p var {
+span.file-name, span.tool-name, p code, p var {
     font-family: monospace;
     color: var(--inline-code-text-color);
     background: var(--inline-code-background-color);
