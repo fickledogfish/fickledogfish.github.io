@@ -79,7 +79,7 @@ pre code[class^="language-"] {
     border-radius: var(--highlight-border-radius);
 }
 
-span.file-name, span.tool-name, p code, p var {
+span.file-name, span.tool-name, p code, p var, li code {
     font-family: monospace;
     color: var(--inline-code-text-color);
     background: var(--inline-code-background-color);
