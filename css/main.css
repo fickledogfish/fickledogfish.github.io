@@ -3,26 +3,26 @@
    ╚═══════════╝ */
 
 :root {
-    /* Palette generated with coolors.co: #1E1E24, #ADA8B6, #FFEEDB, #55D6C2, #0FA3B1 */
-    --background-color: #1E1E24;
-    --text-color: #ADA8B6;
-    --link-color: #8F8E8B;
-    --header-color: #55D6C2;
+	/* Palette generated with coolors.co: #1E1E24, #ADA8B6, #FFEEDB, #55D6C2, #0FA3B1 */
+	--background-color: #1E1E24;
+	--text-color: #ADA8B6;
+	--link-color: #8F8E8B;
+	--header-color: #55D6C2;
 
-    --inline-code-text-color: #A6A2B0;
-    --inline-code-background-color: #2E2E34;
+	--inline-code-text-color: #A6A2B0;
+	--inline-code-background-color: #2E2E34;
 
-    --nav-menu-background-color: #1A1A1F;
-    --nav-menu-background-hover-color: #2A2A3F;
-    --nav-menu-border: 1px solid #8F8FAF;
+	--nav-menu-background-color: #1A1A1F;
+	--nav-menu-background-hover-color: #2A2A3F;
+	--nav-menu-border: 1px solid #8F8FAF;
 
-    --body-vertical-margin: 3%;
-    --body-horizontal-small-margin: 3%;
-    --body-horizontal-medium-margin: 10%;
-    --body-horizontal-big-margin: 20%;
+	--body-vertical-margin: 3%;
+	--body-horizontal-small-margin: 3%;
+	--body-horizontal-medium-margin: 10%;
+	--body-horizontal-big-margin: 20%;
 
-    --highlight-padding: 3px;
-    --highlight-border-radius: 8px;
+	--highlight-padding: 3px;
+	--highlight-border-radius: 8px;
 }
 
 /* ╔══════════════════════╗
@@ -33,23 +33,23 @@
 
 /* Smaller devices get only a tiny margin */
 @media screen {
-    body {
-        margin: var(--body-vertical-margin) var(--body-horizontal-small-margin);
-    }
+	body {
+		margin: var(--body-vertical-margin) var(--body-horizontal-small-margin);
+	}
 }
 
 /* Tablets, landscape iPad, lo-res laptops and desktops */
 @media screen and (min-width: 801px) {
-    body {
-        margin: var(--body-vertical-margin) var(--body-horizontal-medium-margin);
-    }
+	body {
+		margin: var(--body-vertical-margin) var(--body-horizontal-medium-margin);
+	}
 }
 
 /* From big landscape tablets onwards */
 @media screen and (min-width: 1025px) {
-    body {
-        margin: var(--body-vertical-margin) var(--body-horizontal-big-margin);
-    }
+	body {
+		margin: var(--body-vertical-margin) var(--body-horizontal-big-margin);
+	}
 }
 
 /* ╔════════╗
@@ -57,34 +57,38 @@
    ╚════════╝ */
 
 :root {
-    background-color: var(--background-color);
-    color: var(--text-color);
-    font-size: 15;
-    line-height: 1.4;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	font-size: 15;
+	line-height: 1.4;
 }
 
 a {
-    color: var(--link-color);
+	color: var(--link-color);
 }
 
 h1, h2, h3 {
-    color: var(--header-color);
+	color: var(--header-color);
 }
 
 /* ╔══════════════╗
    ║ Highlighting ║
    ╚══════════════╝ */
 
+pre {
+	tab-size: 4;
+}
+
 pre code[class^="language-"] {
-    border-radius: var(--highlight-border-radius);
+	border-radius: var(--highlight-border-radius);
 }
 
 span.file-name, span.tool-name, p code, p var, li code {
-    font-family: monospace;
-    color: var(--inline-code-text-color);
-    background: var(--inline-code-background-color);
-    border-radius: var(--highlight-border-radius);
-    padding: var(--highlight-padding);
+	font-family: monospace;
+	color: var(--inline-code-text-color);
+	background: var(--inline-code-background-color);
+	border-radius: var(--highlight-border-radius);
+	padding: var(--highlight-padding);
 }
 
 /* ╔═════════════════╗
@@ -92,31 +96,31 @@ span.file-name, span.tool-name, p code, p var, li code {
    ╚═════════════════╝ */
 
 #navigation-menu ul {
-    border-radius: var(--highlight-border-radius);
-    border: var(--nav-menu-border);
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background-color: var(--nav-menu-background-color);
+	border-radius: var(--highlight-border-radius);
+	border: var(--nav-menu-border);
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: var(--nav-menu-background-color);
 }
 
 #navigation-menu ul li {
-    float: left;
-    border-right: var(--nav-menu-border);
+	float: left;
+	border-right: var(--nav-menu-border);
 }
 
 #navigation-menu ul li:last-child {
-    float: right;
-    border-left: var(--nav-menu-border);
+	float: right;
+	border-left: var(--nav-menu-border);
 }
 
 #navigation-menu ul li a {
-    display: block;
-    text-align: center;
-    padding: 14px 16px;
+	display: block;
+	text-align: center;
+	padding: 14px 16px;
 }
 
 #navigation-menu ul li a:hover {
-    background-color: var(--nav-menu-background-hover-color);
+	background-color: var(--nav-menu-background-hover-color);
 }

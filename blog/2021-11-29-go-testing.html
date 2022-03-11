@@ -2,250 +2,250 @@
 <html lang="pt">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Criando testes em Go</title>
-    <meta name="author" content="Aníbal Vilela">
-    <meta name="description" content="Introdução a testes de unidade em Go usando as ferramentas nativas e a biblioteca gocheck.">
+	<title>Criando testes em Go</title>
+	<meta name="author" content="Aníbal Vilela">
+	<meta name="description" content="Introdução a testes de unidade em Go usando as ferramentas nativas e a biblioteca gocheck.">
 
-    <link rel="stylesheet" href="/deps/highlight/style.min.css">
-    <link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="/deps/highlight/style.min.css">
+	<link rel="stylesheet" href="/css/main.css">
 
-    <link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
 </head>
 
 <body>
-    <html-include src="/common-html/nav-menu.html"></html-include>
+	<html-include src="/common-html/nav-menu.html"></html-include>
 
-    <main>
-    <h1>Criando testes em Go</h1>
+	<main>
+	<h1>Criando testes em Go</h1>
 
-    <p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em testes de unidade. Todo o código fonte descrito pode ser baixado <a href="/resources/fossil/go-testing.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a>, onde cada tópico possui uma branch dedicada; caso necessário, o usuário e a senha são ambos <var>admin</var>.</p>
+	<p>Aviso: esse post assume conhecimentos básicos de <a href="https://golang.org/">Go</a> para focar apenas em testes de unidade. Todo o código fonte descrito pode ser baixado <a href="/resources/fossil/go-testing.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/home/doc/trunk/www/index.wiki">fossil</a>, onde cada tópico possui uma branch dedicada; caso necessário, o usuário e a senha são ambos <var>admin</var>.</p>
 
-    <p>Primeiramente, vamos criar uma API; nada muito complicado, somente algumas rotas para termos o que testar:</p>
+	<p>Primeiramente, vamos criar uma API; nada muito complicado, somente algumas rotas para termos o que testar:</p>
 
-    <pre><code class="language-go">
-    // main.go
-    package main
+	<pre><code class="language-go">
+	// main.go
+	package main
 
-    import (
-        "fmt"
-        "net/http"
+	import (
+		"fmt"
+		"net/http"
 
-        "github.com/gorilla/mux"
-    )
+		"github.com/gorilla/mux"
+	)
 
-    func main() {
-        http.ListenAndServe(":8080", newRouter())
-    }
+	func main() {
+		http.ListenAndServe(":8080", newRouter())
+	}
 
-    func newRouter() http.Handler {
-        router := mux.NewRouter()
-        router.
-            HandleFunc("/", func(res http.ResponseWriter, _ *http.Request) {
-                fmt.Fprintln(res, "hello")
-            }).
-            Methods(http.MethodGet)
+	func newRouter() http.Handler {
+		router := mux.NewRouter()
+		router.
+			HandleFunc("/", func(res http.ResponseWriter, _ *http.Request) {
+				fmt.Fprintln(res, "hello")
+			}).
+			Methods(http.MethodGet)
 
-        router.
-            HandleFunc("/greet/{name}", func(response http.ResponseWriter, request *http.Request) {
-                name := mux.Vars(request)["name"]
-                fmt.Fprintf(response, "hallo, %s", name)
-            }).
-            Methods(http.MethodGet)
+		router.
+			HandleFunc("/greet/{name}", func(response http.ResponseWriter, request *http.Request) {
+				name := mux.Vars(request)["name"]
+				fmt.Fprintf(response, "hallo, %s", name)
+			}).
+			Methods(http.MethodGet)
 
-        return router
-    }
-    </code></pre>
+		return router
+	}
+	</code></pre>
 
-    <p>(Estou me adiantando aqui e separando a definição das rotas em uma função própria. Isso será relevante na hora de criar um servidor para testes.)</p>
+	<p>(Estou me adiantando aqui e separando a definição das rotas em uma função própria. Isso será relevante na hora de criar um servidor para testes.)</p>
 
-    <p>Em Go, testes são colocados em um arquivo com o sufixo <span class="file-name">*_test.go</span> ao lado do arquivo a ser testado na árvore de diretórios. Os arquivos de testes podem ou não pertencer ao mesmo pacote que o arquivo a ser testado, a diferença principal sendo o acesso a funções privadas &mdash; testes <em>whitebox</em> pertencem ao mesmo pacote, enquanto testes <em>blackbox</em> não.</p>
-    
-    <pre><code class="language-go">
-    // main_test.go
-    package main
+	<p>Em Go, testes são colocados em um arquivo com o sufixo <span class="file-name">*_test.go</span> ao lado do arquivo a ser testado na árvore de diretórios. Os arquivos de testes podem ou não pertencer ao mesmo pacote que o arquivo a ser testado, a diferença principal sendo o acesso a funções privadas &mdash; testes <em>whitebox</em> pertencem ao mesmo pacote, enquanto testes <em>blackbox</em> não.</p>
+	
+	<pre><code class="language-go">
+	// main_test.go
+	package main
 
-    import (
-        "io/ioutil"
-        "net/http"
-        "net/http/httptest"
-        "testing"
-    )
+	import (
+		"io/ioutil"
+		"net/http"
+		"net/http/httptest"
+		"testing"
+	)
 
-    func TestGETRoot(t *testing.T) {
-        server := httptest.NewServer(NewRouter())
+	func TestGETRoot(t *testing.T) {
+		server := httptest.NewServer(NewRouter())
 
-        response, err := http.Get(server.URL + "/")
-        if err != nil {
-            t.Errorf("Unexpected error while getting %s: %s", server.URL, err)
-        }
-        defer response.Body.Close()
+		response, err := http.Get(server.URL + "/")
+		if err != nil {
+			t.Errorf("Unexpected error while getting %s: %s", server.URL, err)
+		}
+		defer response.Body.Close()
 
-        responseText, err := ioutil.ReadAll(response.Body)
-        if err != nil {
-            t.Errorf("Unexpected error while reading response: %s", err)
-        }
+		responseText, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			t.Errorf("Unexpected error while reading response: %s", err)
+		}
 
-        if string(responseText) != "hello" {
-            t.Errorf("Expected %s, but got %s", "hello", string(responseText))
-        }
-    }
-    </code></pre>
+		if string(responseText) != "hello" {
+			t.Errorf("Expected %s, but got %s", "hello", string(responseText))
+		}
+	}
+	</code></pre>
 
-    <p>Nativamente, a Go possui ferramentas para testes <a href="http://go.dev/doc/tutorial/add-a-test">de unidade</a>, <a href="https://pkg.go.dev/testing#hdr-Benchmarks"><em>benchmarks</em></a> e <a href="https://pkg.go.dev/testing#hdr-Examples">exemplos</a> (com <a href="https://go.dev/blog/fuzz-beta"><em>fuzzing</em></a> a caminho na versão 1.18), e utilizá-las é bem simples: basta escrever código em Go com alguns pacotes auxiliares, como <a href="https://pkg.go.dev/net/http/httptest"><code>httptest</code></a> e <a href="https://pkg.go.dev/testing#T"><code>testing</code></a>. Sobre esse último, é importante notar que sua API possui funções para terminar a execução do teste atual (<a href="https://pkg.go.dev/testing#T.FailNow"><code>FailNow</code></a>, <a href="https://pkg.go.dev/testing#T.Fatal"><code>Fatal</code></a> e <a href="https://pkg.go.dev/testing#T.Fatalf"><code>Fatalf</code></a>) ou continuar apesar do erro (<a href="https://pkg.go.dev/testing#T.Fail"><code>Fail</code></a>, <a href="https://pkg.go.dev/testing#T.Error"><code>Error</code></a> e <a href="https://pkg.go.dev/testing#T.Errorf"><code>Errorf</code></a>), mas essa distinção será ignorada nesse post.</p>
+	<p>Nativamente, a Go possui ferramentas para testes <a href="http://go.dev/doc/tutorial/add-a-test">de unidade</a>, <a href="https://pkg.go.dev/testing#hdr-Benchmarks"><em>benchmarks</em></a> e <a href="https://pkg.go.dev/testing#hdr-Examples">exemplos</a> (com <a href="https://go.dev/blog/fuzz-beta"><em>fuzzing</em></a> a caminho na versão 1.18), e utilizá-las é bem simples: basta escrever código em Go com alguns pacotes auxiliares, como <a href="https://pkg.go.dev/net/http/httptest"><code>httptest</code></a> e <a href="https://pkg.go.dev/testing#T"><code>testing</code></a>. Sobre esse último, é importante notar que sua API possui funções para terminar a execução do teste atual (<a href="https://pkg.go.dev/testing#T.FailNow"><code>FailNow</code></a>, <a href="https://pkg.go.dev/testing#T.Fatal"><code>Fatal</code></a> e <a href="https://pkg.go.dev/testing#T.Fatalf"><code>Fatalf</code></a>) ou continuar apesar do erro (<a href="https://pkg.go.dev/testing#T.Fail"><code>Fail</code></a>, <a href="https://pkg.go.dev/testing#T.Error"><code>Error</code></a> e <a href="https://pkg.go.dev/testing#T.Errorf"><code>Errorf</code></a>), mas essa distinção será ignorada nesse post.</p>
 
-    <p>Essa simplicidade escrever testes diminui o atrito para ler e entender seu código, porém também traz suas surpresas; se você tentar rodar os testes usando <code class=language-plaintext>go test ./...</code>, encontrará um erro inusitado:</p>
+	<p>Essa simplicidade escrever testes diminui o atrito para ler e entender seu código, porém também traz suas surpresas; se você tentar rodar os testes usando <code class=language-plaintext>go test ./...</code>, encontrará um erro inusitado:</p>
 
-    <pre><code class="language-plaintext">
-    ?       example.com/test        [no test files]
-    ?       example.com/test/config [no test files]
-    --- FAIL: TestGETRoot (0.00s)
-        routes_test.go:27: Expected hello, but got hello
-    OK: 1 passed
-    FAIL
-    FAIL    example.com/test/routes 0.564s
-    FAIL
-    </code></pre>
+	<pre><code class="language-plaintext">
+	?       example.com/test        [no test files]
+	?       example.com/test/config [no test files]
+	--- FAIL: TestGETRoot (0.00s)
+		routes_test.go:27: Expected hello, but got hello
+	OK: 1 passed
+	FAIL
+	FAIL    example.com/test/routes 0.564s
+	FAIL
+	</code></pre>
 
-    <p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️ Esse resultado não é imediatamente óbvio (ao menos não foi para mim quando me deparei com ele pela primeira vez), mas, depois de algum tempo olhando para o resultado, você pode pensar em experimentar a especificação <a href="https://pkg.go.dev/fmt"><code>%#v</code></a> para formatar os resultados:</p>
+	<p>Ele espera <code>hello</code>, mas obteve <code>hello</code>? 🤷‍♂️ Esse resultado não é imediatamente óbvio (ao menos não foi para mim quando me deparei com ele pela primeira vez), mas, depois de algum tempo olhando para o resultado, você pode pensar em experimentar a especificação <a href="https://pkg.go.dev/fmt"><code>%#v</code></a> para formatar os resultados:</p>
 
-    <pre><code class="language-go">
-    t.Errorf("Expected %#v, but got %#v", "hello", string(responseText))
-    </code></pre>
+	<pre><code class="language-go">
+	t.Errorf("Expected %#v, but got %#v", "hello", string(responseText))
+	</code></pre>
 
-    <p>E então obtém-se uma resposta mais esclarecedora:</p>
+	<p>E então obtém-se uma resposta mais esclarecedora:</p>
 
-    <pre><code class="language-plaintext">
-    ?       example.com/test        [no test files]
-    ?       example.com/test/config [no test files]
-    --- FAIL: TestGETRoot (0.00s)
-        routes_test.go:27: Expected "hello", but got "hello\n"
-    OK: 1 passed
-    FAIL
-    FAIL    example.com/test/routes 0.560s
-    FAIL
-    </code></pre>
+	<pre><code class="language-plaintext">
+	?       example.com/test        [no test files]
+	?       example.com/test/config [no test files]
+	--- FAIL: TestGETRoot (0.00s)
+		routes_test.go:27: Expected "hello", but got "hello\n"
+	OK: 1 passed
+	FAIL
+	FAIL    example.com/test/routes 0.560s
+	FAIL
+	</code></pre>
 
-    <p>Mas mesmo assim ainda temos de escrever manualmente as mensagens de erro &mdash; ou criar funções para automatizar isso &mdash;, o que pode levar a erros como o demonstrado. Não haveria uma forma mais conveniente?</p>
+	<p>Mas mesmo assim ainda temos de escrever manualmente as mensagens de erro &mdash; ou criar funções para automatizar isso &mdash;, o que pode levar a erros como o demonstrado. Não haveria uma forma mais conveniente?</p>
 
-    <h2>Introduzindo <a href="http://github.com/go-check/check">gocheck</a></h2>
+	<h2>Introduzindo <a href="http://github.com/go-check/check">gocheck</a></h2>
 
-    <p><a href="http://github.com/go-check/check">Gocheck</a> é uma das (<a href="https://github.com/avelino/awesome-go#testing">muitas</a>) bibliotecas de teste em Go, e visa expandir as funcionalidades da biblioteca padrão com asserções e suítes de testes; por conta disso, seu <em>setup</em> é um pouco mais envolvido:</p>
+	<p><a href="http://github.com/go-check/check">Gocheck</a> é uma das (<a href="https://github.com/avelino/awesome-go#testing">muitas</a>) bibliotecas de teste em Go, e visa expandir as funcionalidades da biblioteca padrão com asserções e suítes de testes; por conta disso, seu <em>setup</em> é um pouco mais envolvido:</p>
 
-    <pre><code class="language-go">
-    package main
+	<pre><code class="language-go">
+	package main
 
-    import (
-        "io/ioutil"
-        "net/http"
-        "net/http/httptest"
-        "testing"
+	import (
+		"io/ioutil"
+		"net/http"
+		"net/http/httptest"
+		"testing"
 
-        "gopkg.in/check.v1"
-    )
+		"gopkg.in/check.v1"
+	)
 
-    func Test(t *testing.T) { check.TestingT(t) }
+	func Test(t *testing.T) { check.TestingT(t) }
 
-    type RootPathTestSuite struct {
-        server *httptest.Server
-    }
+	type RootPathTestSuite struct {
+		server *httptest.Server
+	}
 
-    var _ = check.Suite(&RootPathTestSuite{})
+	var _ = check.Suite(&RootPathTestSuite{})
 
-    func (s *RootPathTestSuite) SetUpTest(c *check.C) {
-        s.server = httptest.NewServer(newRouter())
-    }
+	func (s *RootPathTestSuite) SetUpTest(c *check.C) {
+		s.server = httptest.NewServer(newRouter())
+	}
 
-    func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
-        response, err := http.Get(s.server.URL + "/")
-        c.Assert(err, check.IsNil)
-        defer response.Body.Close()
+	func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
+		response, err := http.Get(s.server.URL + "/")
+		c.Assert(err, check.IsNil)
+		defer response.Body.Close()
 
-        byteData, err := ioutil.ReadAll(response.Body)
-        c.Assert(err, check.IsNil)
+		byteData, err := ioutil.ReadAll(response.Body)
+		c.Assert(err, check.IsNil)
 
-        data := string(byteData)
-        c.Assert(data, check.Equals, "hello")
-    }
-    </code></pre>
+		data := string(byteData)
+		c.Assert(data, check.Equals, "hello")
+	}
+	</code></pre>
 
-    <p>Separando em partes, os pontos mais interessantes são:</p>
+	<p>Separando em partes, os pontos mais interessantes são:</p>
 
-    <pre><code class="language-go">
-    func Test(t *testing.T) { check.TestingT(t) }
-    </code></pre>
+	<pre><code class="language-go">
+	func Test(t *testing.T) { check.TestingT(t) }
+	</code></pre>
 
-    <p>Essa linha liga <code class="language-go">gocheck</code> à ferramenta de teste da linguagem, mas ainda não temos nenhum teste definido. Isso porque primeiro precisamos definir uma suíte, que nada mais são do que <code class="language-go">struct</code>s:</p>
+	<p>Essa linha liga <code class="language-go">gocheck</code> à ferramenta de teste da linguagem, mas ainda não temos nenhum teste definido. Isso porque primeiro precisamos definir uma suíte, que nada mais são do que <code class="language-go">struct</code>s:</p>
 
-    <pre><code class="language-go">
-    type RootPathTestSuite struct {
-        server *httptest.Server
-    }
+	<pre><code class="language-go">
+	type RootPathTestSuite struct {
+		server *httptest.Server
+	}
 
-    var _ = check.Suite(&RootPathTestSuite{})
-    </code></pre>
+	var _ = check.Suite(&RootPathTestSuite{})
+	</code></pre>
 
-    <p>Como todos os testes dependem da criação do servidor, esse será passado através da suíte; para inicializá-lo, temos duas opções: uma única vez antes de todos os testes, ou repetidamente, antes de cada teste. Para o primeiro caso, há a função <code class="language-go">func (s *RootPathTestSuite) SetUpSuite(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownSuite(c *C)</code>); para o segundo, <code class="language-go">func (s *RootPathTestSuite) SetUpTest(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownTest(c *C)</code>).</p>
+	<p>Como todos os testes dependem da criação do servidor, esse será passado através da suíte; para inicializá-lo, temos duas opções: uma única vez antes de todos os testes, ou repetidamente, antes de cada teste. Para o primeiro caso, há a função <code class="language-go">func (s *RootPathTestSuite) SetUpSuite(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownSuite(c *C)</code>); para o segundo, <code class="language-go">func (s *RootPathTestSuite) SetUpTest(c *C)</code> (e sua contraparte, <code class="language-go">func (s *RootPathTestSuite) TearDownTest(c *C)</code>).</p>
 
-    <p>Para esse exemplo, escolhi iniciar o servidor antes de cada teste:</p>
+	<p>Para esse exemplo, escolhi iniciar o servidor antes de cada teste:</p>
 
-    <pre><code class="language-go">
-    func (s *RootPathTestSuite) SetUpTest(c *check.C) {
-        s.server = httptest.NewServer(newRouter())
-    }
-    </code></pre>
+	<pre><code class="language-go">
+	func (s *RootPathTestSuite) SetUpTest(c *check.C) {
+		s.server = httptest.NewServer(newRouter())
+	}
+	</code></pre>
 
-    <p>E a partir desse ponto pode-se escrever testes de uma forma bem parecida com os anteriores, com uma leve modificação na assinatura:</p>
+	<p>E a partir desse ponto pode-se escrever testes de uma forma bem parecida com os anteriores, com uma leve modificação na assinatura:</p>
 
-    <pre><code class="language-go">
-    func (s *RootPathTestSuite) TestGETRoot(c *check.C) { }
-    </code></pre>
+	<pre><code class="language-go">
+	func (s *RootPathTestSuite) TestGETRoot(c *check.C) { }
+	</code></pre>
 
-    <p>As funções ainda precisam ser nomeadas <code class="language-plaintext">Test*</code>, porém agora elas também tomam como argumento um <em>receiver</em> da suíte em questão.</p>
+	<p>As funções ainda precisam ser nomeadas <code class="language-plaintext">Test*</code>, porém agora elas também tomam como argumento um <em>receiver</em> da suíte em questão.</p>
 
-    <p>Finalmente, podemos reescrever o teste em questão. Porém, ao invés de manualmente verificar erros, pode-se utilizar as asserções dadas pela biblioteca através da função <a href="https://pkg.go.dev/gopkg.in/check.v1#C.Assert"><code class="language-go">c.Assert</code></a>. Note que ela tem dois parâmetros obrigatórios: o valor obtido e algo que implemente a interface <code class="language-plaintext">Checker</code>. O terceiro argumento é o valor esperado (e nem todos os <code class="language-plaintext">Checker</code>s necessitam dele), e você ainda pode adicionar <a href="https://pkg.go.dev/gopkg.in/check.v1#Commentf">um comentário para ser impresso junto à asserção</a>.</p>
+	<p>Finalmente, podemos reescrever o teste em questão. Porém, ao invés de manualmente verificar erros, pode-se utilizar as asserções dadas pela biblioteca através da função <a href="https://pkg.go.dev/gopkg.in/check.v1#C.Assert"><code class="language-go">c.Assert</code></a>. Note que ela tem dois parâmetros obrigatórios: o valor obtido e algo que implemente a interface <code class="language-plaintext">Checker</code>. O terceiro argumento é o valor esperado (e nem todos os <code class="language-plaintext">Checker</code>s necessitam dele), e você ainda pode adicionar <a href="https://pkg.go.dev/gopkg.in/check.v1#Commentf">um comentário para ser impresso junto à asserção</a>.</p>
 
-    <p>Voltando ao exemplo, pode-se usar <code class="language-plaintext">c.Assert(err, check.IsNil)</code> para verificar se <code class="language-plaintext">http.Get</code> ou <code class="language-plaintext">ioutil.ReadAll</code> encontraram algum problema, e <code class="language-plaintext">c.Assert(data, check.Equals, "hello")</code> para testar o retorno do endpoint:</p>
+	<p>Voltando ao exemplo, pode-se usar <code class="language-plaintext">c.Assert(err, check.IsNil)</code> para verificar se <code class="language-plaintext">http.Get</code> ou <code class="language-plaintext">ioutil.ReadAll</code> encontraram algum problema, e <code class="language-plaintext">c.Assert(data, check.Equals, "hello")</code> para testar o retorno do endpoint:</p>
 
-    <pre><code class="language-go">
-    func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
-        response, err := http.Get(s.server.URL + "/")
-        c.Assert(err, check.IsNil)
-        defer response.Body.Close()
+	<pre><code class="language-go">
+	func (s *RootPathTestSuite) TestGETRoot(c *check.C) {
+		response, err := http.Get(s.server.URL + "/")
+		c.Assert(err, check.IsNil)
+		defer response.Body.Close()
 
-        byteData, err := ioutil.ReadAll(response.Body)
-        c.Assert(err, check.IsNil)
+		byteData, err := ioutil.ReadAll(response.Body)
+		c.Assert(err, check.IsNil)
 
-        data := string(byteData)
-        c.Assert(data, check.Equals, "hello")
-    }
-    </code></pre>
+		data := string(byteData)
+		c.Assert(data, check.Equals, "hello")
+	}
+	</code></pre>
 
-    <p>Nota-se que, ao rodar os testes, imediatamente obtém-se um resultado claro sobre o erro com muito menos esforço:</p>
+	<p>Nota-se que, ao rodar os testes, imediatamente obtém-se um resultado claro sobre o erro com muito menos esforço:</p>
 
-    <pre><code class="language-plaintext">
-    ----------------------------------------------------------------------
-    FAIL: main_test.go:25: RootPathTestSuite.TestGETRoot
-    
-    main_test.go:34:
-        c.Assert(data, check.Equals, "hello")
-    ... obtained string = "hello\n"
-    ... expected string = "hello"
-    
-    OOPS: 2 passed, 1 FAILED
-    --- FAIL: Test (0.00s)
-    FAIL
-    FAIL	example.com/test	0.553s
-    FAIL
-    </code></pre>
+	<pre><code class="language-plaintext">
+	----------------------------------------------------------------------
+	FAIL: main_test.go:25: RootPathTestSuite.TestGETRoot
+	
+	main_test.go:34:
+		c.Assert(data, check.Equals, "hello")
+	... obtained string = "hello\n"
+	... expected string = "hello"
+	
+	OOPS: 2 passed, 1 FAILED
+	--- FAIL: Test (0.00s)
+	FAIL
+	FAIL	example.com/test	0.553s
+	FAIL
+	</code></pre>
 
-    </main>
+	</main>
 
-    <!-- Leave these at the end -->
-    <script src="/deps/highlight/highlight.min.js"></script>
-    <script type="module" src="/js/main.js"></script>
+	<!-- Leave these at the end -->
+	<script src="/deps/highlight/highlight.min.js"></script>
+	<script type="module" src="/js/main.js"></script>
 </body>
 
 </html>

@@ -1,48 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-    <title>Nippy Small Sort</title>
-    <description>Um blog sobre programação e outras coisas</description>
-    <language>pt-br</language>
-    <link>https://fickledogfish.github.io/</link>
-    <atom:link href="https://fickledogfish.github.io/resources/feeds/blog-full.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Mon, 29 Nov 2021 13:00:00 -0300</lastBuildDate>
-    <pubDate>Mon, 29 Nov 2021 13:00:00 -0300</pubDate>
-    <ttl>1440</ttl>
+	<title>Nippy Small Sort</title>
+	<description>Um blog sobre programação e outras coisas</description>
+	<language>pt-br</language>
+	<link>https://fickledogfish.github.io/</link>
+	<atom:link href="https://fickledogfish.github.io/resources/feeds/blog-full.xml" rel="self" type="application/rss+xml" />
+	<lastBuildDate>Mon, 29 Nov 2021 13:00:00 -0300</lastBuildDate>
+	<pubDate>Mon, 29 Nov 2021 13:00:00 -0300</pubDate>
+	<ttl>1440</ttl>
 
-    <item>
-    <title>Go terminal with Kong</title>
-    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
-    <link>https://fickledogfish.github.io/blog/2022-01-31-go-terminal-with-kong.html</link>
-    <guid>https://fickledogfish.github.io/blog/2022-01-31-go-terminal-with-kong.html</guid>
-    <description>Criando apps para o terminal usando Kong e Go</description>
-    <pubDate>Mon, 31 Jan 2022 13:00:00 -0300</pubDate>
-    </item>
+	<item>
+	<title>Go terminal with Kong</title>
+	<author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+	<link>https://fickledogfish.github.io/blog/2022-01-31-go-terminal-with-kong.html</link>
+	<guid>https://fickledogfish.github.io/blog/2022-01-31-go-terminal-with-kong.html</guid>
+	<description>Criando apps para o terminal usando Kong e Go</description>
+	<pubDate>Mon, 31 Jan 2022 13:00:00 -0300</pubDate>
+	</item>
 
-    <title>Hoje não temos plot tuists</title>
-    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
-    <link>https://fickledogfish.github.io/blog/2022-01-08-ios-apps-with-tuist.html</link>
-    <guid>https://fickledogfish.github.io/blog/2022-01-08-ios-apps-with-tuist.html</guid>
-    <description>Tentando substituir um pbxproj.</description>
-    <pubDate>Sat, 08 Jan 2022 13:00:00 -0300</pubDate>
-    </item>
+	<title>Hoje não temos plot tuists</title>
+	<author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+	<link>https://fickledogfish.github.io/blog/2022-01-08-ios-apps-with-tuist.html</link>
+	<guid>https://fickledogfish.github.io/blog/2022-01-08-ios-apps-with-tuist.html</guid>
+	<description>Tentando substituir um pbxproj.</description>
+	<pubDate>Sat, 08 Jan 2022 13:00:00 -0300</pubDate>
+	</item>
 
-    <item>
-    <title>Criando testes em Go</title>
-    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
-    <link>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</link>
-    <guid>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</guid>
-    <description>Introdução a testes de unidade em Go usando as ferramentas nativas e a biblioteca gocheck.</description>
-    <pubDate>Mon, 29 Nov 2021 13:00:00 -0300</pubDate>
-    </item>
+	<item>
+	<title>Criando testes em Go</title>
+	<author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+	<link>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</link>
+	<guid>https://fickledogfish.github.io/blog/2021-11-29-go-testing.html</guid>
+	<description>Introdução a testes de unidade em Go usando as ferramentas nativas e a biblioteca gocheck.</description>
+	<pubDate>Mon, 29 Nov 2021 13:00:00 -0300</pubDate>
+	</item>
 
-    <item>
-    <title>Criando um blog com Github Pages</title>
-    <author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
-    <link>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</link>
-    <guid>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</guid>
-    <description>Uma introdução ao GitHub Pages.</description>
-    <pubDate>Tue, 07 Nov 2021 13:00:00 -0300</pubDate>
-    </item>
+	<item>
+	<title>Criando um blog com Github Pages</title>
+	<author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+	<link>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</link>
+	<guid>https://fickledogfish.github.io/blog/2021-11-07-github-pages.html</guid>
+	<description>Uma introdução ao GitHub Pages.</description>
+	<pubDate>Tue, 07 Nov 2021 13:00:00 -0300</pubDate>
+	</item>
 </channel>
 </rss>

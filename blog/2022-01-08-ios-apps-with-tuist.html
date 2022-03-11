@@ -2,98 +2,98 @@
 <html lang="pt">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Hoje não temos plot tuists</title>
-    <meta name="author" content="Aníbal Vilela">
-    <meta name="description" content="Tentando substituir um pbxproj.">
+	<title>Hoje não temos plot tuists</title>
+	<meta name="author" content="Aníbal Vilela">
+	<meta name="description" content="Tentando substituir um pbxproj.">
 
-    <link rel="stylesheet" href="/deps/highlight/style.min.css">
-    <link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="/deps/highlight/style.min.css">
+	<link rel="stylesheet" href="/css/main.css">
 
-    <link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
 </head>
 
 <body>
-    <html-include src="/common-html/nav-menu.html"></html-include>
+	<html-include src="/common-html/nav-menu.html"></html-include>
 
-    <main>
-    <h1>Hoje não temos plot tuists</h1>
+	<main>
+	<h1>Hoje não temos plot tuists</h1>
 
-    <p>TL;DR: falhei miseravelmente em criar um projeto simples para usar de exemplo, mas ainda quis fazer um post sobre isso.</p>
+	<p>TL;DR: falhei miseravelmente em criar um projeto simples para usar de exemplo, mas ainda quis fazer um post sobre isso.</p>
 
-    <p>Um dos problemas que mais nos deu dor de cabeça ao desenvolver o <a href="https://github.com/Apps-Inc/desafio-modal">desafio-modal</a> foi um arquivo chamado <a href="https://github.com/Apps-Inc/desafio-modal/blob/main/desafio-modal.xcodeproj/project.pbxproj"><span class="file-name">desafio-modal.xcodeproj/project.pbxproj</span></a>. Ele, aparentemente, contém desde informações básicas dos arquivos como seus nomes, pastas (que, por algum motivo brilhante, mas que me escapa a lógica, pode ser diferente da pasta real) e posição no navegador do Xcode, até configurações ou plataformas-alvo &mdash; ou seja, desde coisas que poderiam ser descobertas na hora da compilação e cacheadas, a configurações importantes que devem ser compartilhadas com todos do projeto.</p>
+	<p>Um dos problemas que mais nos deu dor de cabeça ao desenvolver o <a href="https://github.com/Apps-Inc/desafio-modal">desafio-modal</a> foi um arquivo chamado <a href="https://github.com/Apps-Inc/desafio-modal/blob/main/desafio-modal.xcodeproj/project.pbxproj"><span class="file-name">desafio-modal.xcodeproj/project.pbxproj</span></a>. Ele, aparentemente, contém desde informações básicas dos arquivos como seus nomes, pastas (que, por algum motivo brilhante, mas que me escapa a lógica, pode ser diferente da pasta real) e posição no navegador do Xcode, até configurações ou plataformas-alvo &mdash; ou seja, desde coisas que poderiam ser descobertas na hora da compilação e cacheadas, a configurações importantes que devem ser compartilhadas com todos do projeto.</p>
 
-    <p>Basicamente, um desastre pedindo pra acontecer, e que nos atingiu vez atrás de outra nesse projeto através de conflitos de merge no <span class="tool-name">git</span>.</p>
+	<p>Basicamente, um desastre pedindo pra acontecer, e que nos atingiu vez atrás de outra nesse projeto através de conflitos de merge no <span class="tool-name">git</span>.</p>
 
-    <p>A primeira solução encontrada para isso foi o <a href="https://github.com/Lightricks/Kintsugi">kintsugi</a>, que nos serviu bem... até que não funcionou e <a href="https://github.com/medvish1">@medvish1</a> teve de manipular o arquivo para que o projeto voltasse à sanidade.</p>
+	<p>A primeira solução encontrada para isso foi o <a href="https://github.com/Lightricks/Kintsugi">kintsugi</a>, que nos serviu bem... até que não funcionou e <a href="https://github.com/medvish1">@medvish1</a> teve de manipular o arquivo para que o projeto voltasse à sanidade.</p>
 
-    <p>Infalizmente, como tínhamos apenas uma semana para nos dedicarmos ao aplicativo, não houve uma boa oportunidade para experimentar outra solução, apesar de termos encontrado pelo menos duas outras &mdash; <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> e <a href="https://tuist.io/">tuist</a>. Desses, gostei particularmente do <span class="tool-name">tuist</span>, então estava decidido a estudá-lo no PDI desse mês. Infelizmente (de novo), fazer a ferramenta funcionar como queria se provou... um desafio.</p>
+	<p>Infalizmente, como tínhamos apenas uma semana para nos dedicarmos ao aplicativo, não houve uma boa oportunidade para experimentar outra solução, apesar de termos encontrado pelo menos duas outras &mdash; <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> e <a href="https://tuist.io/">tuist</a>. Desses, gostei particularmente do <span class="tool-name">tuist</span>, então estava decidido a estudá-lo no PDI desse mês. Infelizmente (de novo), fazer a ferramenta funcionar como queria se provou... um desafio.</p>
 
-    <p>Em seu uso normal, a ferramenta funciona lindamente &mdash; um novo projeto pode ser facilmente criado com um simples <code>tuist init</code> (ou <code>tuist init --name MyAwesomeApp</code> para não usar o nome da pasta atual), e <code>tuist focus</code> lança o <span class="tool-name">Xcode</span> com o projeto já configurado. Mas vamos parar um pouco para explorar o que foi criado:</p>
+	<p>Em seu uso normal, a ferramenta funciona lindamente &mdash; um novo projeto pode ser facilmente criado com um simples <code>tuist init</code> (ou <code>tuist init --name MyAwesomeApp</code> para não usar o nome da pasta atual), e <code>tuist focus</code> lança o <span class="tool-name">Xcode</span> com o projeto já configurado. Mas vamos parar um pouco para explorar o que foi criado:</p>
 
-    <pre><code class="language-shell">
-    im@work tmp $ exa -TL1
-    .
-    ├── Derived
-    ├── Project.swift
-    ├── Targets
-    ├── Tmp.xcodeproj
-    ├── Tmp.xcworkspace
-    └── Tuist
-    </code></pre>
+	<pre><code class="language-shell">
+	im@work tmp $ exa -TL1
+	.
+	├── Derived
+	├── Project.swift
+	├── Targets
+	├── Tmp.xcodeproj
+	├── Tmp.xcworkspace
+	└── Tuist
+	</code></pre>
 
-    <p>Meu primeiro pensamendo ao ver isso foi que essa estrutura era mais complicada do que eu precisava, e quanto mais investigava, mas essa sensação se confirmava:</p>
+	<p>Meu primeiro pensamendo ao ver isso foi que essa estrutura era mais complicada do que eu precisava, e quanto mais investigava, mas essa sensação se confirmava:</p>
 
-    <pre><code class="language-shell">
-    im@work tmp $ exa -T Targets
-    Targets
-    ├── Tmp
-    │  ├── Resources
-    │  │  └── LaunchScreen.storyboard
-    │  ├── Sources
-    │  │  └── AppDelegate.swift
-    │  └── Tests
-    │     └── AppTests.swift
-    ├── TmpKit
-    │  ├── Sources
-    │  │  └── TmpKit.swift
-    │  └── Tests
-    │     └── TmpKitTests.swift
-    └── TmpUI
-       ├── Sources
-       │  └── TmpUI.swift
-       └── Tests
-          └── TmpUITests.swift
-    </code></pre>
+	<pre><code class="language-shell">
+	im@work tmp $ exa -T Targets
+	Targets
+	├── Tmp
+	│  ├── Resources
+	│  │  └── LaunchScreen.storyboard
+	│  ├── Sources
+	│  │  └── AppDelegate.swift
+	│  └── Tests
+	│     └── AppTests.swift
+	├── TmpKit
+	│  ├── Sources
+	│  │  └── TmpKit.swift
+	│  └── Tests
+	│     └── TmpKitTests.swift
+	└── TmpUI
+	   ├── Sources
+	   │  └── TmpUI.swift
+	   └── Tests
+	      └── TmpUITests.swift
+	</code></pre>
 
-    <p>Temos três pastas, cada uma correspondendo a um subprojeto de <span class="file-name">tmp</span>: <span class="file-name">Tmp</span>, <span class="file-name">TmpKit</span> e <span class="file-name">TmpUI</span>. Uma leve sensação de <em>déjà vu</em> da primeira vez que usei <a href="https://docs.haskellstack.org/">Stack</a> programando em Haskell passou por mim &mdash; na época também não gostei da complexidade dos templates disponíveis, mas com o tempo passei a apreciar seus modelos um pouco mais. Ainda assim, queria algo simples para poder explorar e ilustrar esse post, e essa estrutura padrão me pareceu... demais.</p>
+	<p>Temos três pastas, cada uma correspondendo a um subprojeto de <span class="file-name">tmp</span>: <span class="file-name">Tmp</span>, <span class="file-name">TmpKit</span> e <span class="file-name">TmpUI</span>. Uma leve sensação de <em>déjà vu</em> da primeira vez que usei <a href="https://docs.haskellstack.org/">Stack</a> programando em Haskell passou por mim &mdash; na época também não gostei da complexidade dos templates disponíveis, mas com o tempo passei a apreciar seus modelos um pouco mais. Ainda assim, queria algo simples para poder explorar e ilustrar esse post, e essa estrutura padrão me pareceu... demais.</p>
 
-    <p>E foi então que bati a cabeça na parede.</p>
+	<p>E foi então que bati a cabeça na parede.</p>
 
-    <p>Primeiramente, não consegui descobrir como templates funcionam no <span class="tool-name">tuist</span>, ou não parece haver uma variedade deles como disponível no <span class="tool-name">Stack</span>. Depois de ler a documentação por algum tempo, experimentar no terminal, e fuçar o <code class="language-plaintext">tuist --help</code>, percebi que a minha melhor alternativa era editar o <span class="file-name">Project.swift</span> manualmente (o comando <code class="language-shell">tuist edit</code> abre o <span class="tool-name">Xcode</span> para editar o manifesto do projeto). Foi animador ver que a maior parte do arquivo era um comentário em ASCII art, porém o que sobrou não me dizia muito:</p>
+	<p>Primeiramente, não consegui descobrir como templates funcionam no <span class="tool-name">tuist</span>, ou não parece haver uma variedade deles como disponível no <span class="tool-name">Stack</span>. Depois de ler a documentação por algum tempo, experimentar no terminal, e fuçar o <code class="language-plaintext">tuist --help</code>, percebi que a minha melhor alternativa era editar o <span class="file-name">Project.swift</span> manualmente (o comando <code class="language-shell">tuist edit</code> abre o <span class="tool-name">Xcode</span> para editar o manifesto do projeto). Foi animador ver que a maior parte do arquivo era um comentário em ASCII art, porém o que sobrou não me dizia muito:</p>
 
-    <pre><code class="language-swift">
-    import ProjectDescription
-    import ProjectDescriptionHelpers
+	<pre><code class="language-swift">
+	import ProjectDescription
+	import ProjectDescriptionHelpers
 
-    let project = Project.app(
-        name: "Tmp",
-        platform: .iOS,
-        additionalTargets: ["TmpKit", "TmpUI"]
-    )
-    </code></pre>
+	let project = Project.app(
+		name: "Tmp",
+		platform: .iOS,
+		additionalTargets: ["TmpKit", "TmpUI"]
+	)
+	</code></pre>
 
-    <p>Ok, então isso gera um projeto para iOS com dois alvos a mais, mas... por que esse arquivo é diferente do <a href="https://docs.tuist.io/tutorial/get-started">exemplo mostrado no <em>get started</em></a>? Um pouco de curiosidade me levou a <span class="file-name">Manifests/Tuist/ProjectDescriptionHelpers/Project+Templates.swift</span>, que contém uma extensão de <code class="language-swift">Project</code> que esclarece algumas coisas, e lembra um pouco mais o exemplo. Ainda assim, por que fazer diferente? Esqueceram de atualizar a documentação talvez?</p>
+	<p>Ok, então isso gera um projeto para iOS com dois alvos a mais, mas... por que esse arquivo é diferente do <a href="https://docs.tuist.io/tutorial/get-started">exemplo mostrado no <em>get started</em></a>? Um pouco de curiosidade me levou a <span class="file-name">Manifests/Tuist/ProjectDescriptionHelpers/Project+Templates.swift</span>, que contém uma extensão de <code class="language-swift">Project</code> que esclarece algumas coisas, e lembra um pouco mais o exemplo. Ainda assim, por que fazer diferente? Esqueceram de atualizar a documentação talvez?</p>
 
-    <p>Bem, se o exemplo não usa isso, talvez eu consiga segui-lo e fazer algo mais simples para a demonstração. Apaguei o arquivo e toda árvore de pastas criada para definir meu esquema e... não funcionou. Passei um tempo para descobrir que não havia um <span class="file-name">Assets.xcassets</span> no projeto, e não só ele é necessário, como também precisa ter um conjunto de ícones para o aplicativo, que, por algum motivo, não vem definido por padrão apesar do requerimento (para resolver isso, basta criar o arquivo de <em>assets</em>, clicar com o botão direito dentro dele e selecionar <code>iOS > New iOS App Icon</code>).</p>
+	<p>Bem, se o exemplo não usa isso, talvez eu consiga segui-lo e fazer algo mais simples para a demonstração. Apaguei o arquivo e toda árvore de pastas criada para definir meu esquema e... não funcionou. Passei um tempo para descobrir que não havia um <span class="file-name">Assets.xcassets</span> no projeto, e não só ele é necessário, como também precisa ter um conjunto de ícones para o aplicativo, que, por algum motivo, não vem definido por padrão apesar do requerimento (para resolver isso, basta criar o arquivo de <em>assets</em>, clicar com o botão direito dentro dele e selecionar <code>iOS > New iOS App Icon</code>).</p>
 
-    <p>Mas, ainda assim, não consegui criar um aplicativo usando o <span class="tool-name">tuist</span>. Quem sabe mês que vem.</p>
-    </main>
+	<p>Mas, ainda assim, não consegui criar um aplicativo usando o <span class="tool-name">tuist</span>. Quem sabe mês que vem.</p>
+	</main>
 
-    <script src="/deps/highlight/highlight.min.js"></script>
-    <script type="module" src="/js/main.js"></script>
+	<script src="/deps/highlight/highlight.min.js"></script>
+	<script type="module" src="/js/main.js"></script>
 </body>
 
 </html>
