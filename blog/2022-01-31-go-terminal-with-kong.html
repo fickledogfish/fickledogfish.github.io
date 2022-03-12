@@ -2,211 +2,215 @@
 <html lang="pt">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Go terminal with Kong</title>
-    <meta name="author" content="Aníbal Vilela">
-    <meta name="description" content="Criando apps para o terminal usando Kong e Go">
+	<title>Go terminal with Kong</title>
+	<meta name="author" content="Aníbal Vilela">
+	<meta name="description" content="Criando apps para o terminal usando Kong e Go">
 
-    <link rel="stylesheet" href="/deps/highlight/style.min.css">
-    <link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="/deps/highlight/style.min.css">
+	<link rel="stylesheet" href="/css/main.css">
 
-    <link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
 </head>
 
 <body>
-    <html-include src="/common-html/nav-menu.html"></html-include>
+	<nav id="navigation-menu"><ul>
+		<li><a href="/">Home</a></li>
+		<li><a href="https://github.com/fickledogfish/fickledogfish.github.io">src</a></li>
+		<li><a href="/resources/feeds/blog-full.xml">Feed</a></li>
+	</ul></nav>
 
-    <main>
-    <h1>Go terminal with Kong</h1>
+	<main>
+	<h1>Go terminal with Kong</h1>
 
-    <p>Esse mês estava discutindo a possibilidade de criar uma ferramenta interna para a Vaivoa com um colega que havia começado a criar seu <em>backend</em>, e resolvi então criar uma CLI para se comunicar com ele.</p>
+	<p>Esse mês estava discutindo a possibilidade de criar uma ferramenta interna para a Vaivoa com um colega que havia começado a criar seu <em>backend</em>, e resolvi então criar uma CLI para se comunicar com ele.</p>
 
-    <p>Pequeno problema: <a href="https://pkg.go.dev/flag@go1.17.6">flag</a>, o pacote da biblioteca padrão para parsing de <em>flags</em> não é muito bom ou conveniente. Primeiramente, ele não distingue entre <em>short</em> (<code>-s</code> ou <code>-h</code>) e <em>long flags</em> (<code>--silent</code> ou <code>--help</code>), ao menos não <a href="https://www.antoniojgutierrez.com/posts/2021-05-14-short-and-long-options-in-go-flags-pkg/">sem um hack</a>, e ainda não possui todas as conveniências, como usar várias <em>short flags</em> em sequência (<code>-sle</code> ao invés de <code>-s -l -e</code>). Também é menos conveniente de usar do que algumas alternativas, sendo necessário registrar manualmente qual variável cada <em>flag</em> manipula.</p>
+	<p>Pequeno problema: <a href="https://pkg.go.dev/flag@go1.17.6">flag</a>, o pacote da biblioteca padrão para parsing de <em>flags</em> não é muito bom ou conveniente. Primeiramente, ele não distingue entre <em>short</em> (<code>-s</code> ou <code>-h</code>) e <em>long flags</em> (<code>--silent</code> ou <code>--help</code>), ao menos não <a href="https://www.antoniojgutierrez.com/posts/2021-05-14-short-and-long-options-in-go-flags-pkg/">sem um hack</a>, e ainda não possui todas as conveniências, como usar várias <em>short flags</em> em sequência (<code>-sle</code> ao invés de <code>-s -l -e</code>). Também é menos conveniente de usar do que algumas alternativas, sendo necessário registrar manualmente qual variável cada <em>flag</em> manipula.</p>
 
-    <p>Assim, decidi experimentar a biblioteca <a href="https://github.com/alecthomas/kong">Kong</a>; é ativamente mantida (o último <em>commit</em> nesse momento foi há dois dias), e a forma como mapeia os subcomandos e opções em <code>struct</code>s é bem interessante, pois facilita futuras modificações.</p>
+	<p>Assim, decidi experimentar a biblioteca <a href="https://github.com/alecthomas/kong">Kong</a>; é ativamente mantida (o último <em>commit</em> nesse momento foi há dois dias), e a forma como mapeia os subcomandos e opções em <code>struct</code>s é bem interessante, pois facilita futuras modificações.</p>
 
-    <p>Apesar da documentação por vezes sofrível, utilizar a biblioteca é muito fácil: basta definir <code>struct</code>s com a estrutura de subcomandos e opções desejadas, marcando devidamente seus campos. Para ilustração, considere um programa com os seguintes subcomandos:</p>
+	<p>Apesar da documentação por vezes sofrível, utilizar a biblioteca é muito fácil: basta definir <code>struct</code>s com a estrutura de subcomandos e opções desejadas, marcando devidamente seus campos. Para ilustração, considere um programa com os seguintes subcomandos:</p>
 
-    <p><ul>
-        <li><code>open</code>: finge abrir um arquivo</li>
-        <li><code>net</code>: faz uma requisição a uma URL e imprime o código de retorno recebido; possui uma flag para silenciar a saída</li>
-    </ul></p>
+	<p><ul>
+		<li><code>open</code>: finge abrir um arquivo</li>
+		<li><code>net</code>: faz uma requisição a uma URL e imprime o código de retorno recebido; possui uma flag para silenciar a saída</li>
+	</ul></p>
 
-    <p>Primeiramente, define-se o ponto de entrada do programa, que chamarei de <code>Cli</code>. Nele, serão definidos os subcomandos da aplicação:</p>
+	<p>Primeiramente, define-se o ponto de entrada do programa, que chamarei de <code>Cli</code>. Nele, serão definidos os subcomandos da aplicação:</p>
 
-    <pre><code class="language-go">
-    package main
+	<pre><code class="language-go">
+	package main
 
-    import (
-        "log"
-        "os"
-    
-        "github.com/alecthomas/kong"
-    )
+	import (
+		"log"
+		"os"
+	
+		"github.com/alecthomas/kong"
+	)
 
-    type Cli struct {
-    }
+	type Cli struct {
+	}
 
-    func main() {
-        var app Cli
+	func main() {
+		var app Cli
 
-        k, err := kong.New(
-            &app,
-        )
-        if err != nil {
-            log.Fatal(err)
-        }
+		k, err := kong.New(
+			&app,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-        context, err := k.Parse(os.Args[1:])
-        if err != nil {
-            log.Fatal(err)
-        }
+		context, err := k.Parse(os.Args[1:])
+		if err != nil {
+			log.Fatal(err)
+		}
 
-        err = context.Run()
-        if err != nil {
-            log.Fatal(err)
-        }
-    }
-    </code></pre>
+		err = context.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	</code></pre>
 
-    <p>Por hora, <code>Cli</code> não possui campos, e o código demonstra apenas o setup da biblioteca. <code>kong.New(grammar interface{}, options ...Option)</code> criar um novo... <code>kong.Kong</code> (sim, eu sei), que, por hora, recebe apenas a raiz da aplicação; em seguida, <code>kong.Kong.Parse(args []string)</code> realiza o <em>parsing</em> dos argumentos passados (tira-se o primeiro elemento de <code>os.Args</code> pois ele corresponde ao caminho para o executável); finalmente, <code>kong.Context.Run(binds ...interface{})</code> executa o comando selecionado pelo usuário.</p>
+	<p>Por hora, <code>Cli</code> não possui campos, e o código demonstra apenas o setup da biblioteca. <code>kong.New(grammar interface{}, options ...Option)</code> criar um novo... <code>kong.Kong</code> (sim, eu sei), que, por hora, recebe apenas a raiz da aplicação; em seguida, <code>kong.Kong.Parse(args []string)</code> realiza o <em>parsing</em> dos argumentos passados (tira-se o primeiro elemento de <code>os.Args</code> pois ele corresponde ao caminho para o executável); finalmente, <code>kong.Context.Run(binds ...interface{})</code> executa o comando selecionado pelo usuário.</p>
 
-    <p>Note que, apesar do código ser contido num únido pacote, a <code>Cli</code> é exportada; caso não o seja, a biblioteca não consegue trabalhar.</p>
+	<p>Note que, apesar do código ser contido num únido pacote, a <code>Cli</code> é exportada; caso não o seja, a biblioteca não consegue trabalhar.</p>
 
-    <p>Rodando esse programa com <code>go run . -h</code>, tem-se a página de ajuda, gerada automagicamente pela <code>Kong</code>:</p>
+	<p>Rodando esse programa com <code>go run . -h</code>, tem-se a página de ajuda, gerada automagicamente pela <code>Kong</code>:</p>
 
-    <pre><code class="language-plaintext">
-    $ go run . -h
-    Usage: gokong
+	<pre><code class="language-plaintext">
+	$ go run . -h
+	Usage: gokong
 
-    Flags:
-        -h, --help    Show context-sensitive help. 
-    </code></pre>
+	Flags:
+		-h, --help    Show context-sensitive help. 
+	</code></pre>
 
-    <p>Se quisermos alterar a descrição do programa basta passar <a href="https://pkg.go.dev/github.com/alecthomas/kong#Option"><code>kong.Option</code></a>s para <a href="https://pkg.go.dev/github.com/alecthomas/kong#New"><code>kong.New()</code></a>:</p>
+	<p>Se quisermos alterar a descrição do programa basta passar <a href="https://pkg.go.dev/github.com/alecthomas/kong#Option"><code>kong.Option</code></a>s para <a href="https://pkg.go.dev/github.com/alecthomas/kong#New"><code>kong.New()</code></a>:</p>
 
-    <pre><code class="language-go">
-    k, err := kong.New(
-        &app,
-        kong.Name("cli"),
-        kong.Description("Easily parse cli args as structs"),
-    )
-    </code></pre>
+	<pre><code class="language-go">
+	k, err := kong.New(
+		&app,
+		kong.Name("cli"),
+		kong.Description("Easily parse cli args as structs"),
+	)
+	</code></pre>
 
-    <p>Usando o mesmo comando, tem-se agora um resultado um pouco mais personalizado:</p>
+	<p>Usando o mesmo comando, tem-se agora um resultado um pouco mais personalizado:</p>
 
-    <pre><code class="language-plaintext">
-    $ go run . -h
-    Usage: cli
+	<pre><code class="language-plaintext">
+	$ go run . -h
+	Usage: cli
 
-    Easily parse cli args as structs
+	Easily parse cli args as structs
 
-    Flags:
-      -h, --help    Show context-sensitive help.
-    </code></pre>
+	Flags:
+	  -h, --help    Show context-sensitive help.
+	</code></pre>
 
-    <p>Podemos agora, começar a definir os subcomandos do projeto e suas respectivas opções, começando pelo mais simples, <code>open</code>. Ele deve receber apenas o arquivo a ser aberto.</p>
+	<p>Podemos agora, começar a definir os subcomandos do projeto e suas respectivas opções, começando pelo mais simples, <code>open</code>. Ele deve receber apenas o arquivo a ser aberto.</p>
 
-    <pre><code class="language-go">
-    type Cli struct {
-        Open OpenCommand `cmd help:"Pretends to open a file"`
-    }
+	<pre><code class="language-go">
+	type Cli struct {
+		Open OpenCommand `cmd help:"Pretends to open a file"`
+	}
 
-    type OpenCommand struct{
-        FileName string `arg help:"File to be opened"`
-    }
-    </code></pre>
+	type OpenCommand struct{
+		FileName string `arg help:"File to be opened"`
+	}
+	</code></pre>
 
-    <p>Como <code>OpenCommand</code> é um subcomando, ele deve receber a tag <code>cmd</code> para que a <code>Kong</code> o reconheça como tal; analogamente, <code>FileName</code> é um argumento obrigatório para <code>OpenCommand</code>, então deve ser marcado com a tag <code>arg</code>. Note que a ajuda do programa é atualizada adequadamente:</p>
+	<p>Como <code>OpenCommand</code> é um subcomando, ele deve receber a tag <code>cmd</code> para que a <code>Kong</code> o reconheça como tal; analogamente, <code>FileName</code> é um argumento obrigatório para <code>OpenCommand</code>, então deve ser marcado com a tag <code>arg</code>. Note que a ajuda do programa é atualizada adequadamente:</p>
 
-    <pre><code class="language-plaintext">
-    $ go run . -h
-    Usage: cli &lt;command&gt;
+	<pre><code class="language-plaintext">
+	$ go run . -h
+	Usage: cli &lt;command&gt;
 
-    Easily parse cli args as structs
+	Easily parse cli args as structs
 
-    Flags:
-      -h, --help    Show context-sensitive help.
+	Flags:
+	  -h, --help    Show context-sensitive help.
 
-    Commands:
-      open &lt;file-name&gt;
-        Pretends to open a file
+	Commands:
+	  open &lt;file-name&gt;
+		Pretends to open a file
 
-    Run "cli &lt;command&gt; --help" for more information on a command.
-    </code></pre>
+	Run "cli &lt;command&gt; --help" for more information on a command.
+	</code></pre>
 
-    <p>A forma mais conveniente de ligar funcionalidades a comandos parece ser atrelar uma função <code>Run(...) error</code> para sua respectiva <code>struct</code>:</p>
+	<p>A forma mais conveniente de ligar funcionalidades a comandos parece ser atrelar uma função <code>Run(...) error</code> para sua respectiva <code>struct</code>:</p>
 
-    <pre><code class="language-go">
-    func (o OpenCommand) Run() error {
-        log.Printf("Opening %s\n", o.FileName)
-        return nil
-    }
-    </code></pre>
+	<pre><code class="language-go">
+	func (o OpenCommand) Run() error {
+		log.Printf("Opening %s\n", o.FileName)
+		return nil
+	}
+	</code></pre>
 
-    <p>Assim, as opções definidas no comando são passadas à função através do receptor.</p>
+	<p>Assim, as opções definidas no comando são passadas à função através do receptor.</p>
 
-    <p>Analogamente, o segundo comando é definido como:</p>
+	<p>Analogamente, o segundo comando é definido como:</p>
 
-    <pre><code class="language-go">
-    type Cli struct {
-        Open OpenCommand `cmd help:"Pretends to open a file"`
-        Net  NetCommand  `cmd help:"Contacts the network"`
-    }
+	<pre><code class="language-go">
+	type Cli struct {
+		Open OpenCommand `cmd help:"Pretends to open a file"`
+		Net  NetCommand  `cmd help:"Contacts the network"`
+	}
 
-    type NetCommand struct {
-        Addr string `arg help:"Address to be contacted"`
-    }
-    </code></pre>
+	type NetCommand struct {
+		Addr string `arg help:"Address to be contacted"`
+	}
+	</code></pre>
 
-    <p>É interessante notar que a função <code>Run(...) error</code> pode ter vários argumentos diferentes (incluindo, como já demonstrado, nenhum). A <code>Kong</code> buscará nos argumentos passados para a função <code>kong.Context.Run(...)</code> os <em>bindings</em> para cada tipo encontrado em <code>Run(...) error</code>, e irá inserí-los em sua chamada.</p>
+	<p>É interessante notar que a função <code>Run(...) error</code> pode ter vários argumentos diferentes (incluindo, como já demonstrado, nenhum). A <code>Kong</code> buscará nos argumentos passados para a função <code>kong.Context.Run(...)</code> os <em>bindings</em> para cada tipo encontrado em <code>Run(...) error</code>, e irá inserí-los em sua chamada.</p>
 
-    <p>Assim, é muito fácil utilizar, por exemplo, um cliente http pré-configurado nos comandos, sem ter de recriá-lo em cada um:</p>
+	<p>Assim, é muito fácil utilizar, por exemplo, um cliente http pré-configurado nos comandos, sem ter de recriá-lo em cada um:</p>
 
-    <pre><code class="language-go">
-    func main() {
-        // ...
-        err = context.Run(&http.Client{})
-        // ...
-    }
+	<pre><code class="language-go">
+	func main() {
+		// ...
+		err = context.Run(&http.Client{})
+		// ...
+	}
 
-    // ...
+	// ...
 
-    func (n NetCommand) Run(client *http.Client) error {
-        resp, err := client.Get(n.Addr)
-        if err != nil {
-            return err
-        }
+	func (n NetCommand) Run(client *http.Client) error {
+		resp, err := client.Get(n.Addr)
+		if err != nil {
+			return err
+		}
 
-        if !n.Silent {
-            log.Printf("Da network responded with %s\n", resp.Status)
-        }
+		if !n.Silent {
+			log.Printf("Da network responded with %s\n", resp.Status)
+		}
 
-        return nil
-    }
-    </code></pre>
+		return nil
+	}
+	</code></pre>
 
-    <p>E podemos testar sua funcionalidade com o <a href="https://httpstat.us/">httpstat.us</a>:</p>
+	<p>E podemos testar sua funcionalidade com o <a href="https://httpstat.us/">httpstat.us</a>:</p>
 
-    <pre><code class="language-plaintext">
-    $ go run . net https://httpstat.us/501
-    2022/01/31 13:40:26 Da network responded with 501 Not Implemented
-    $ go run . net https://httpstat.us/501 -s
-    $ go run . net https://httpstat.us/501 --silent
-    $
-    </code></pre>
+	<pre><code class="language-plaintext">
+	$ go run . net https://httpstat.us/501
+	2022/01/31 13:40:26 Da network responded with 501 Not Implemented
+	$ go run . net https://httpstat.us/501 -s
+	$ go run . net https://httpstat.us/501 --silent
+	$
+	</code></pre>
 
-    <p>Também é possível definir um protocolo, e registrar ele como <em>binding</em> para uma variável concreta, ao invés de usá-la diretamente como no caso demonstrado acima, através do <code>kong.Context.BindTo(impl, iface interface{}) Option</code>.</p>
+	<p>Também é possível definir um protocolo, e registrar ele como <em>binding</em> para uma variável concreta, ao invés de usá-la diretamente como no caso demonstrado acima, através do <code>kong.Context.BindTo(impl, iface interface{}) Option</code>.</p>
 
-    <p>Como sempre, o código final desse post pode ser baixado <a href="/resources/fossil/go-with-kong.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/">fossil</a>.</p>
+	<p>Como sempre, o código final desse post pode ser baixado <a href="/resources/fossil/go-with-kong.fossil">aqui</a> na forma de um repositório <a href="https://fossil-scm.org/">fossil</a>.</p>
 
-    </main>
+	</main>
 
-    <!-- Leave these at the end -->
-    <script src="/deps/highlight/highlight.min.js"></script>
-    <script type="module" src="/js/main.js"></script>
+	<!-- Leave these at the end -->
+	<script src="/deps/highlight/highlight.min.js"></script>
+	<script type="module" src="/js/main.js"></script>
 </body>
 
 </html>

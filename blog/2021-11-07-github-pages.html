@@ -2,182 +2,186 @@
 <html lang="pt">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Criando um blog com Github Pages</title>
-    <meta name="author" content="Aníbal Vilela">
-    <meta name="description" content="Uma introdução ao GitHub Pages.">
+	<title>Criando um blog com Github Pages</title>
+	<meta name="author" content="Aníbal Vilela">
+	<meta name="description" content="Uma introdução ao GitHub Pages.">
 
-    <link rel="stylesheet" href="/deps/highlight/style.min.css">
-    <link rel="stylesheet" href="/css/main.css">
+	<link rel="stylesheet" href="/deps/highlight/style.min.css">
+	<link rel="stylesheet" href="/css/main.css">
 
-    <link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
 </head>
 
 <body>
-    <html-include src="/common-html/nav-menu.html"></html-include>
+	<nav id="navigation-menu"><ul>
+		<li><a href="/">Home</a></li>
+		<li><a href="https://github.com/fickledogfish/fickledogfish.github.io">src</a></li>
+		<li><a href="/resources/feeds/blog-full.xml">Feed</a></li>
+	</ul></nav>
 
-    <main>
-    <h1>Criando um blog com GitHub Pages</h1>
+	<main>
+	<h1>Criando um blog com GitHub Pages</h1>
 
-    <p>Criar uma página usando <a href="https://pages.github.com/">GitHub Pages</a> não é tão complicado quanto parece, porém requer certo conhecimento de HTML, especialmente para algo mais envolvido como um blog. Aqui estão os passos que fiz para criar esse.</p>
+	<p>Criar uma página usando <a href="https://pages.github.com/">GitHub Pages</a> não é tão complicado quanto parece, porém requer certo conhecimento de HTML, especialmente para algo mais envolvido como um blog. Aqui estão os passos que fiz para criar esse.</p>
 
-    <p>Primeiramente, você precisará criar um repositório no GitHub com um nome bem específico, <span class="file-name"><var>seu_username</var>.github.io</span>, onde <var>seu_username</var> deve corresponder ao seu usuário do GitHub &mdash; no meu caso, esse repositório se chama <a href="https://github.com/fickledogfish/fickledogfish.github.io">fickledogfish.github.io</a>. A partir daqui, basta programar as páginas e confirmar as mudanças na branch <em>main</em> para que o site seja atualizado.</p>
+	<p>Primeiramente, você precisará criar um repositório no GitHub com um nome bem específico, <span class="file-name"><var>seu_username</var>.github.io</span>, onde <var>seu_username</var> deve corresponder ao seu usuário do GitHub &mdash; no meu caso, esse repositório se chama <a href="https://github.com/fickledogfish/fickledogfish.github.io">fickledogfish.github.io</a>. A partir daqui, basta programar as páginas e confirmar as mudanças na branch <em>main</em> para que o site seja atualizado.</p>
 
-    <p><em>Espera</em>, você pode estar me perguntando, <em>eu tenho que escrever páginas HTML? Em 2021?</em> A resposta para isso é sim, e não. Existem ferramentas de geração de sites estáticos que podem ser integradas nesse processo, conforme demonstrado <a href="https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll">nesse artigo</a>, porém é ultimamente apenas uma forma de automatizar o proceso, pois os arquivos HTML ainda devem se encontrar no repositório. Considerando isso, e também usando a oportunidade para exercitar o pouco que conheço de desenvolvimento web, escolhi editar as páginas manualmente.</p>
+	<p><em>Espera</em>, você pode estar me perguntando, <em>eu tenho que escrever páginas HTML? Em 2021?</em> A resposta para isso é sim, e não. Existem ferramentas de geração de sites estáticos que podem ser integradas nesse processo, conforme demonstrado <a href="https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll">nesse artigo</a>, porém é ultimamente apenas uma forma de automatizar o proceso, pois os arquivos HTML ainda devem se encontrar no repositório. Considerando isso, e também usando a oportunidade para exercitar o pouco que conheço de desenvolvimento web, escolhi editar as páginas manualmente.</p>
 
-    <p>Para criar as páginas, contudo, precisava de alguma direção de design, ou me perderia facilmente conforme fosse escrevendo mais posts. Particularmente, gosto bastante do estilo minimalista apresentado em <a href="https://motherfuckingwebsite.com/">motherfuckingwebsite</a> e, principalmente, em <a href="http://bettermotherfuckingwebsite.com/">bettermotherfuckingwebsite</a>, porém preferiria que tivesse outras cores &mdash; especificamente, um tema escuro.</p>
+	<p>Para criar as páginas, contudo, precisava de alguma direção de design, ou me perderia facilmente conforme fosse escrevendo mais posts. Particularmente, gosto bastante do estilo minimalista apresentado em <a href="https://motherfuckingwebsite.com/">motherfuckingwebsite</a> e, principalmente, em <a href="http://bettermotherfuckingwebsite.com/">bettermotherfuckingwebsite</a>, porém preferiria que tivesse outras cores &mdash; especificamente, um tema escuro.</p>
 
-    <p>Tenho pouca noção de design, então deleguei a escolha de cores ao gerador de paletas <a href="https://coolors.co/">coolors.co</a>; basicamente, gerei algumas até encontrar duas cores interessantes, travei-as e gerei novas até completar todas.</p>
+	<p>Tenho pouca noção de design, então deleguei a escolha de cores ao gerador de paletas <a href="https://coolors.co/">coolors.co</a>; basicamente, gerei algumas até encontrar duas cores interessantes, travei-as e gerei novas até completar todas.</p>
 
-    <p>Tendo isso, era hora de começar a esboçar o projeto. Comecei a página inicial com o template gerado pelo <a href="https://www.emmet.io/">Emmet</a> e algumas modificações:</p>
+	<p>Tendo isso, era hora de começar a esboçar o projeto. Comecei a página inicial com o template gerado pelo <a href="https://www.emmet.io/">Emmet</a> e algumas modificações:</p>
 
-    <pre><code class="language-html">
-    &lt;!DOCTYPE html&gt;
-    &lt;html lang="pt"&gt;
+	<pre><code class="language-html">
+	&lt;!DOCTYPE html&gt;
+	&lt;html lang="pt"&gt;
 
-    &lt;head&gt;
-        &lt;meta charset="utf-8"&gt;
-        &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+	&lt;head&gt;
+		&lt;meta charset="utf-8"&gt;
+		&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
 
-        &lt;title&gt;Blog pessoal&lt;/title&gt;
-        &lt;meta name="author" content="Aníbal Vilela"&gt;
-        &lt;meta name="description" content="Um blog sobre programação e outras coisas"&gt;
+		&lt;title&gt;Blog pessoal&lt;/title&gt;
+		&lt;meta name="author" content="Aníbal Vilela"&gt;
+		&lt;meta name="description" content="Um blog sobre programação e outras coisas"&gt;
 
-        &lt;link rel="stylesheet" href="css/main.css"&gt;
-    &lt;/head&gt;
+		&lt;link rel="stylesheet" href="css/main.css"&gt;
+	&lt;/head&gt;
 
-    &lt;body&gt;
-    &lt;main&gt;
-        &lt;script type="module" src="js/main.js"&gt;&lt;/script&gt;
-    &lt;/main&gt;
-    &lt;/body&gt;
+	&lt;body&gt;
+	&lt;main&gt;
+		&lt;script type="module" src="js/main.js"&gt;&lt;/script&gt;
+	&lt;/main&gt;
+	&lt;/body&gt;
 
-    &lt;/html&gt;
-    </code></pre>
+	&lt;/html&gt;
+	</code></pre>
 
-    <p>A partir disso, tive uma ideia de como organizar o projeto:</p>
+	<p>A partir disso, tive uma ideia de como organizar o projeto:</p>
 
-    <pre><code class="language-plaintext">
-    fickledogfish.github.io/
-        ├ _templates/
-        │    └ blog-post.html
-        ├ blog/
-        │    └ 2021-11-07-github-pages.html
-        ├ css/
-        │    └ main.css
-        ├ deps/
-        ├ images/
-        │    └ icons/
-        │        └ favicon.ico
-        ├ js/
-        │    └ main.js
-        ├ .gitignore
-        ├ index.html
-        └ README.md
-    </code></pre>
+	<pre><code class="language-plaintext">
+	fickledogfish.github.io/
+		├ _templates/
+		│    └ blog-post.html
+		├ blog/
+		│    └ 2021-11-07-github-pages.html
+		├ css/
+		│    └ main.css
+		├ deps/
+		├ images/
+		│    └ icons/
+		│        └ favicon.ico
+		├ js/
+		│    └ main.js
+		├ .gitignore
+		├ index.html
+		└ README.md
+	</code></pre>
 
-    <p>Os arquivos devem ser óbvios para qualquer um que já tenha feito algum projeto web:</p>
+	<p>Os arquivos devem ser óbvios para qualquer um que já tenha feito algum projeto web:</p>
 
-    <ul>
-        <li><span class="file-name">.gitignore</span> e <span class="file-name">README.md</span> existem por conta do projeto utilizar git e GitHub;</li>
+	<ul>
+		<li><span class="file-name">.gitignore</span> e <span class="file-name">README.md</span> existem por conta do projeto utilizar git e GitHub;</li>
 
-        <li><span class="file-name">_templates/</span>: contém os templates dos vários tipos de páginas que pretendo usar no site (por hora, há apenas o dos posts);</li>
+		<li><span class="file-name">_templates/</span>: contém os templates dos vários tipos de páginas que pretendo usar no site (por hora, há apenas o dos posts);</li>
 
-        <li><span class="file-name">blog/</span>: contém os posts do blog, sendo que cada arquivo contém uma data de publicação e algumas palavras-chave do assunto tratado (por hora, contém apenas esse post);</li>
+		<li><span class="file-name">blog/</span>: contém os posts do blog, sendo que cada arquivo contém uma data de publicação e algumas palavras-chave do assunto tratado (por hora, contém apenas esse post);</li>
 
-        <li><span class="file-name">deps/</span>: contém dependências externas desse site, que podem ser bibliotecas CSS ou JavaScript;</li>
+		<li><span class="file-name">deps/</span>: contém dependências externas desse site, que podem ser bibliotecas CSS ou JavaScript;</li>
 
-        <li><span class="file-name">css/</span> e <span class="file-name">js/</span>: contém meus arquivos <span class="file-name">*.css</span> e <span class="file-name">*.js</span>, respectivamente;</li>
+		<li><span class="file-name">css/</span> e <span class="file-name">js/</span>: contém meus arquivos <span class="file-name">*.css</span> e <span class="file-name">*.js</span>, respectivamente;</li>
 
-        <li><span class="file-name">images/</span>: contém as imagens globais do site, ainda não sei se colocarei imagens de posts aqui também; e</li>
+		<li><span class="file-name">images/</span>: contém as imagens globais do site, ainda não sei se colocarei imagens de posts aqui também; e</li>
 
-        <li><span class="file-name">index.html</span>: o ponto de entrada do site.</li>
-    </ul>
+		<li><span class="file-name">index.html</span>: o ponto de entrada do site.</li>
+	</ul>
 
-    <p>Para testar localmente, instalei a extensão <a href="https://github.com/ritwickdey/vscode-live-server">Live Server</a> do VS Code, necessária por estar usando módulos em JavaScript. Gosto bastante dele por conta do live reload e por não ter de instalar outras ferramentas.</p>
+	<p>Para testar localmente, instalei a extensão <a href="https://github.com/ritwickdey/vscode-live-server">Live Server</a> do VS Code, necessária por estar usando módulos em JavaScript. Gosto bastante dele por conta do live reload e por não ter de instalar outras ferramentas.</p>
 
-    <p>E a partir desse ponto eu tinha um site pronto! 😊 Bastava agora escrever posts e subir as mudanças para o GitHub para a página ir ao ar. Ainda não tenho uma barra de navegação, e o conteúdo não se encontra alinhado com o visual que buscava, mas é um começo.</p>
+	<p>E a partir desse ponto eu tinha um site pronto! 😊 Bastava agora escrever posts e subir as mudanças para o GitHub para a página ir ao ar. Ainda não tenho uma barra de navegação, e o conteúdo não se encontra alinhado com o visual que buscava, mas é um começo.</p>
 
-    <p>E falando em visual, comecei modificando o CSS. No meu último projeto, achei preferível definir cores e margens básicas como variáveis:</p>
+	<p>E falando em visual, comecei modificando o CSS. No meu último projeto, achei preferível definir cores e margens básicas como variáveis:</p>
 
-    <pre><code class="language-css">
-    :root {
-        --background-color: #1E1E24;
-        --text-color: #ADA8B6;
-        --link-color: #8F8E8B;
-        --header-color: #55D6C2;
+	<pre><code class="language-css">
+	:root {
+		--background-color: #1E1E24;
+		--text-color: #ADA8B6;
+		--link-color: #8F8E8B;
+		--header-color: #55D6C2;
 
-        --body-vertical-margin: 3%;
-        --body-horizontal-small-margin: 3%;
-        --body-horizontal-medium-margin: 10%;
-        --body-horizontal-big-margin: 20%;
-    }
-    </code></pre>
+		--body-vertical-margin: 3%;
+		--body-horizontal-small-margin: 3%;
+		--body-horizontal-medium-margin: 10%;
+		--body-horizontal-big-margin: 20%;
+	}
+	</code></pre>
 
-    <p>Em seguida, adicionei algumas regras de <code>@media screen</code> para tornar a página mais agradável a dispositivos diferentes.</p>
+	<p>Em seguida, adicionei algumas regras de <code>@media screen</code> para tornar a página mais agradável a dispositivos diferentes.</p>
 
-    <pre><code class="language-css">
-    @media screen {
-        body {
-            margin: var(--body-vertical-margin) var(--body-horizontal-small-margin);
-        }
-    }
+	<pre><code class="language-css">
+	@media screen {
+		body {
+			margin: var(--body-vertical-margin) var(--body-horizontal-small-margin);
+		}
+	}
 
-    @media screen and (min-width: 801px) {
-        body {
-            margin: var(--body-vertical-margin) var(--body-horizontal-medium-margin);
-        }
-    }
+	@media screen and (min-width: 801px) {
+		body {
+			margin: var(--body-vertical-margin) var(--body-horizontal-medium-margin);
+		}
+	}
 
-    @media screen and (min-width: 1025px) {
-        body {
-            margin: var(--body-vertical-margin) var(--body-horizontal-big-margin);
-        }
-    }
-    </code></pre>
+	@media screen and (min-width: 1025px) {
+		body {
+			margin: var(--body-vertical-margin) var(--body-horizontal-big-margin);
+		}
+	}
+	</code></pre>
 
-    <p>Testei nos meus aparelhos e gostei desse layout, porém admito que meu conhecimento de design e boas práticas é bem limitado, então apreciaria um Pull Request caso esteja completamente fora dos padrões.</p>
+	<p>Testei nos meus aparelhos e gostei desse layout, porém admito que meu conhecimento de design e boas práticas é bem limitado, então apreciaria um Pull Request caso esteja completamente fora dos padrões.</p>
 
-    <p>Depois de brincar com cores e definir um padrão básico para o site a partir da paleta gerada lá no início, achei ser um ponto bom para começar a escrever. E então notei que um blog sobre programação que não possui syntax highlight iria parecer ainda menos profissional &mdash; hora de procurar como fazer isso então.</p>
+	<p>Depois de brincar com cores e definir um padrão básico para o site a partir da paleta gerada lá no início, achei ser um ponto bom para começar a escrever. E então notei que um blog sobre programação que não possui syntax highlight iria parecer ainda menos profissional &mdash; hora de procurar como fazer isso então.</p>
 
-    <p>Depois de algumas pesquisas, decidi usar o <a href="https://highlightjs.org/">highlightjs</a> por vir com diversos temas e ter suporte a várias linguagens. E o melhor, você pode escolher <a href="https://highlightjs.org/download/">quais linguagens utilizar</a>, o que reduz o tráfego necessário para a apresentação do site.</p>
+	<p>Depois de algumas pesquisas, decidi usar o <a href="https://highlightjs.org/">highlightjs</a> por vir com diversos temas e ter suporte a várias linguagens. E o melhor, você pode escolher <a href="https://highlightjs.org/download/">quais linguagens utilizar</a>, o que reduz o tráfego necessário para a apresentação do site.</p>
 
-    <p>Para ativá-lo preciso primeiro carregar o tema escolhido e seu script:</p>
+	<p>Para ativá-lo preciso primeiro carregar o tema escolhido e seu script:</p>
 
-    <pre><code class="language-html">
-    &lt;!-- Dentro de &lt;head&gt; --&gt;
-    &lt;link rel="stylesheet" href="deps/highlight/styles/night-owl.min.css"&gt;
-    &lt;link rel="stylesheet" href="css/main.css"&gt;
+	<pre><code class="language-html">
+	&lt;!-- Dentro de &lt;head&gt; --&gt;
+	&lt;link rel="stylesheet" href="deps/highlight/styles/night-owl.min.css"&gt;
+	&lt;link rel="stylesheet" href="css/main.css"&gt;
 
-    &lt;!-- No final de &lt;body&gt; --&gt;
-    &lt;script src="deps/highlight/highlight.min.js"&gt;&lt;/script&gt;
-    &lt;script type="module" src="js/main.js"&gt;&lt;/script&gt;
-    </code></pre>
+	&lt;!-- No final de &lt;body&gt; --&gt;
+	&lt;script src="deps/highlight/highlight.min.js"&gt;&lt;/script&gt;
+	&lt;script type="module" src="js/main.js"&gt;&lt;/script&gt;
+	</code></pre>
 
-    <p>E chamá-lo no meu script:</p>
+	<p>E chamá-lo no meu script:</p>
 
-    <pre><code class="language-javascript">
-    window.onload = () => {
-        document.querySelectorAll("pre code").forEach((el) => {
-            hljs.highlightElement(el);
-        });
-    }
-    </code></pre>
+	<pre><code class="language-javascript">
+	window.onload = () => {
+		document.querySelectorAll("pre code").forEach((el) => {
+			hljs.highlightElement(el);
+		});
+	}
+	</code></pre>
 
-    <p>Decidi usar uma forma não-convencional para iniciar essa biblioteca, carregando-a somente depois que página estiver pronta para apresentação, para que o usuário receba primeiro o conteúdo, e depois suas customizações. Agora, basta decorar um bloco <code>pre>code</code> com a classe explicitando a linguagem correspondente para a mágica acontecer:</p>
+	<p>Decidi usar uma forma não-convencional para iniciar essa biblioteca, carregando-a somente depois que página estiver pronta para apresentação, para que o usuário receba primeiro o conteúdo, e depois suas customizações. Agora, basta decorar um bloco <code>pre>code</code> com a classe explicitando a linguagem correspondente para a mágica acontecer:</p>
 
-    <pre><code class="language-html">
-    &lt;pre&gt;&lt;code class="language-*"&gt;
-    &lt;/code&gt;&lt;/pre&gt;
-    </code></pre>
+	<pre><code class="language-html">
+	&lt;pre&gt;&lt;code class="language-*"&gt;
+	&lt;/code&gt;&lt;/pre&gt;
+	</code></pre>
 
-    <p>E foi assim que criei um blog no GitHub Pages e meu primeiro post nele. Lembrando que o código fonte desse site pode ser visto no <a href="https://github.com/fickledogfish/fickledogfish.github.io">meu github</a>, e contribuições para melhoria de estilo ou sugestões são sempre bem-vindas.</p>
-    </main>
+	<p>E foi assim que criei um blog no GitHub Pages e meu primeiro post nele. Lembrando que o código fonte desse site pode ser visto no <a href="https://github.com/fickledogfish/fickledogfish.github.io">meu github</a>, e contribuições para melhoria de estilo ou sugestões são sempre bem-vindas.</p>
+	</main>
 
-    <script src="/deps/highlight/highlight.min.js"></script>
-    <script type="module" src="/js/main.js"></script>
+	<script src="/deps/highlight/highlight.min.js"></script>
+	<script type="module" src="/js/main.js"></script>
 </body>
 
 </html>
