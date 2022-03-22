@@ -1,4 +1,4 @@
 .DS_Store
 
-resources/fossil/
+resources/fossil/**
 !resources/fossil/*.fossil
