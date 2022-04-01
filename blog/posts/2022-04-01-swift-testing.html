@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<title>Temos que testar</title>
+	<meta name="author" content="Aníbal Vilela">
+	<meta name="description" content="Algumas funções úteis para usar em testes na Swift">
+
+	<link rel="stylesheet" href="/deps/highlight/style.min.css">
+	<link rel="stylesheet" href="/css/main.css">
+
+	<link rel="icon" type="image/x-icon" href="/resources/images/icons/favicon.ico">
+</head>
+
+<body>
+	<nav id="navigation-menu"><ul>
+		<li><a href="/">Home</a></li>
+		<li><a href="https://github.com/fickledogfish/fickledogfish.github.io">src</a></li>
+		<li><a href="/resources/feeds/blog-full.xml">Feed</a></li>
+	</ul></nav>
+
+	<main>
+	<h1>Temos que testar</h1>
+
+	<p>Temos no trabalho uma regra, aparentemente introduzida recentemente, que as <em>pull requests</em> devem provar cobertura de, pelo menos, 80&percnt; nos testes do arquivo relevante. Porém, as classes que eu e um colega pegamos não possuíam nenhum, então tivemos que implementar muita coisa a mais. Aqui é uma documentação de algumas das ideias que tivemos nessas últimas duas semanas para facilitar nossa vida.</p>
+
+	<p><em>Disclaimer</em>: algumas dessas ideias vêm de um <a href="https://www.udemy.com/course/swift-tdd-com-mango/">curso de TDD em Swift</a> (link não patrocinado, infelizmente) que alguns de nós estãos fazendo. Apesar de não concordar com tudo que seja passado, acho o material bem interessante. Meu progresso nele pode ser acompanhado <a href="https://github.com/fickledogfish/udemy-swift-tdd-com-mango">nesse repositório</a>.</p>
+
+	<h2><code class="language-swift">makeSut() -&gt; Sut</code></h2>
+
+	<p>Essa, na verdade, é uma família de funções &mdash; especificamente, uma dessas existe para cada classe a ser testada &mdash; retornando sempre uma struct contendo a classe que está sendo testada no momento (também referida como <em>system under test</em>) e suas dependências, preferencialmente na forma de protocolos <em>mockados</em> em classes (uma vez que structs são <a href="https://medium.com/hash-coding/swift-copy-on-write-optimization-46b1890862dd">CoW</a>, então uma modificação alteraria a cópia, e não a referência injetada). Assim, cada teste pode facilmente modificar, por exemplo, os dados que pretende-se retornar de um serviço, ou quaisquer dados de preparação requeridos para a ação testada.</p>
+
+	<pre><code class="language-swift">
+	struct Sut {
+		let loginService: LoginServiceMock, // Note que são os mocks reais, não os protocolos...
+		let searchService: SearchServiceMock,
+
+		let vm: SomeViewModel
+	}
+
+	func makeSut() -&gt; Sut {
+		let loginService = LoginServiceMock()
+		let searchService = SearchServiceMock()
+
+		let vm = SomeViewModel(
+			loginService: loginService, // ... e que eles também são injetados na ViewModel
+			searchService: searchService
+		)
+
+		struct Sut (
+			loginService: loginService,
+			searchService: searchService,
+
+			vm: vm
+		)
+	}
+	</code></pre>
+
+	<p>Apesar da nomenclatura obscurecer um pouco o significado, acho que a abstração é válida por definir um único ponto a ser alterado caso a regra de criação da SUT mude &mdash; por exemplo, se um novo serviço precisar ser adicionado, basta criar seu <em>mock</em> e injetá-lo através da <code class="language-swift">makeSut()</code>.</p>
+
+	<h2><code class="language-swift">checkMemoryLeak(for:)</code></h2>
+
+	<p>A Swift tenta gerenciar a memória alocada dos objetos para você a fim de evitar o inconveniente uso manual de <code class="language-c">malloc()</code> e <code class="language-c">free()</code> &mdash; que não me incomoda tanto, mas essa é uma discussão para outra hora. Contudo, pode ocorrer de dois objetos serem interdependentes e, portanto, <a href="https://doordash.engineering/2019/05/22/ios-memory-leaks-and-retain-cycle-detection-using-xcodes-memory-graph-debugger/">entrarem num ciclo de retenção</a>. O interessante disso é que podemos verificar se a instância de uma classe foi liberada no final de um teste com um simples <em>weak binding</em>:</p>
+
+	<pre><code class="language-swift">
+	func checkMemoryLeak(
+		for instance: AnyObject,
+		file: StaticString = &#35;filePath,
+		line: UInt = &#35;line
+	) {
+		addTeardownBlock { [weak instance] in
+			XCTAssertNil(instance, "Memory leaked", file: file, line: line)
+		}
+	}
+	</code></pre>
+
+	<p>Esse código adiciona uma <em>closure</em> a ser executada no final de cada função de teste, e apenas verifica que a instância da classe foi liberada no final. Essa função pode ser adicionada à <code class="language-swift">makeSut()</code> para automagicamente fazer essa verificação ao final de cada teste. E, se <code class="language-swift">makeSut()</code> recebe e repassa <code class="language-swift">file</code> e <code class="language-swift">line</code> para essa função, o erro é apontado diretamente no teste problemático ao invés de um lugar genérico.</p>
+
+	<p>Como essa função utiliza <code class="language-swift"> <a href="https://developer.apple.com/documentation/xctest/xctestcase/3815521-addteardownblock">addTeardownBlock(_:)</a></code>, ela precisa ser colocada em uma extensão de <span class="type-name">XCTestCase</span>, a classe que todas as classes de teste herdam.</p>
+
+	<h2><code class="language-swift">getFirstFrom&lt;T&gt;(driver:) -&gt; T</code></h2>
+
+	<p>Essa surgiu quando nos deparamos com uma classe repleta de <span class="type-name">BehaviorRelay</span>s e <span class="type-name">Driver</span>s; ela abstrai o uso do <span class="tool-name">RxBlocking</span> e retorna o primeiro evento emitido por eles ou falha o teste no caso de um timeout.</p>
+
+	<pre><code class="language-swift">
+	func getFirstFrom&lt;T&gt;(
+		driver: Driver&lt;T&gt;,
+		errorMessage: String = "Failed to get data from driver",
+		blockingTimeout: TimeInterval = 1,
+		file: StaticString = &#35;filePath,
+		line: UInt = &#35;line
+	) -> T? {
+		let result = try? driver
+			.toBlocking(timeout: blockingTimeout)
+			.first()
+	
+		if result == nil {
+			XCTFail(errorMessage, file: file, line: line)
+		}
+	
+		return result
+	}
+	</code></pre>
+
+	<p>Como a função precisa, obrigatoriamente, retornar alguma coisa para o teste seguir adiante, não é possível forçar o <em>unwrap</em> de <var>result</var> no final, o que é um pouco infeliz. Talvez devesse ter utilizado o <code class="language-swift">exit(_:)</code> como fiz abaixo, mas agora é meio tarde para mudar.</p>
+
+	<h2><code class="language-swift">unimplemented() -&gt; Never</code></h2>
+
+	<p>Você programa em Swift mas gostaria de usar <a href="https://www.rust-lang.org/">Rust</a>? Ou talvez você tenha se deparado com um protocolo de 33 funções, e apenas uma delas é relevante à classe que precisa testar? Trago aqui a solução para seu problema!</p>
+
+	<pre><code class="language-swift">
+	func unimplemented(
+		_ message: String? = nil,
+		function: StaticString = &#35;function,
+		file: StaticString = &#35;filePath,
+		line: UInt = &#35;line
+	) -> Never {
+		let errMessage: String
+		if let message = message {
+			errMessage = message
+		} else {
+			errMessage = "\(function) is not implemented"
+		}
+	
+		XCTFail(errMessage, file: file, line: line)
+		exit(1)
+	}
+	</code></pre>
+
+	<p>Essa função é análoga ao <a href="https://doc.rust-lang.org/std/macro.unimplemented.html">unimplemented!()</a>, exceto que, ao invés de quebrar o programa, ela termina a execução do programa imediatamente depois de falhar o teste.</p>
+
+	<p>Por que interromper a execução? Porque a alternativa seria essa função retornar o tipo <span class="type-name">T</span> que a função mãe retorna, e eu não sei como implementar isso.</p>
+
+	<p>Por que não usar o <code class="language-swift">fatalError(_:file:line:)</code> no lugar do <code class="language-swift">exit(_:)</code>? Porque o Xcode pausa a execução do teste e abre o debugger dentro da <code class="language-swift">unimplemented()</code> ao invés de ir para a função que a chamou.</p>
+
+	<p>Com essa função, é possível criar um <em>mock</em> de uma dependência, marcando todas as funções como não implementadas, e, a partir do teste, descobrir quais delas são requeridas. Nada mais de perder três (ou mais) horas para descobrir que um teste estava falhando porque o <span class="type-name">Single</span> vazio nunca emitia um evento em um dos serviços e, portanto, os dados pessoais nunca seriam alterados. Com ela, o teste falha exatamente na função que deveria ter sido implementada.</p>
+
+	<p>Ou então, com o acréscimo de uma <a href="https://davedelong.com/blog/2018/07/25/conditional-compilation-in-swift-part-1/"><em>flag</em> de compilação</a>, essa função pode facilmente ser levada ao código do aplicativo para tomar o lugar do <code class="language-swift">fatalError("init(coder:) has not been implemented")</code>, já que ela sabe o nome de quem a chamou.</p>
+
+	<p>Eu sei que <a href="https://www.textfromxcode.com/">trabalhar no Xcode é sofrer</a>, mas espero que essas dicas tenham ajudado a melhorar ao menos um pouco o seu dia.</p>
+	</main>
+
+	<!-- Leave these at the end -->
+	<script src="/deps/highlight/highlight.min.js"></script>
+	<script type="module" src="/js/main.js"></script>
+</body>
+
+</html>

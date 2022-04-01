@@ -11,6 +11,14 @@
 	<ttl>1440</ttl>
 
 	<item>
+	<title>Temos que testar</title>
+	<author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
+	<link>https://fickledogfish.github.io/blog/posts/2022-04-01-swift-testing.html</link>
+	<guid>https://fickledogfish.github.io/blog/posts/2022-04-01-swift-testing.html</guid>
+	<description>Algumas funções úteis para usar em testes na Swift</description>
+	<pubDate>Fri, 01 Apr 2022 13:00:00 -0300</pubDate>
+	</item>
+
 	<title>Go terminal with Kong</title>
 	<author>anibal.vilela@vaivoa.com (Aníbal G. M. Vilela)</author>
 	<link>https://fickledogfish.github.io/blog/posts/2022-01-31-go-terminal-with-kong.html</link>
