@@ -81,12 +81,12 @@
 
 	<p>Como essa função utiliza <code class="language-swift"> <a href="https://developer.apple.com/documentation/xctest/xctestcase/3815521-addteardownblock">addTeardownBlock(_:)</a></code>, ela precisa ser colocada em uma extensão de <span class="type-name">XCTestCase</span>, a classe que todas as classes de teste herdam.</p>
 
-	<h2><code class="language-swift">getFirstFrom&lt;T&gt;(driver:) -&gt; T</code></h2>
+	<h2><code class="language-swift">getFirstFrom&lt;T&gt;(_:) -&gt; T</code></h2>
 
 	<p>Essa surgiu quando nos deparamos com uma classe repleta de <span class="type-name">BehaviorRelay</span>s e <span class="type-name">Driver</span>s; ela, através do <code class="language-swift">T: ObservableConvertibleType</code>, abstrai o uso do <span class="tool-name">RxBlocking</span> para qualquer coisa convertível a um observável, retornando o primeiro evento emitido por eles (ou falhando o teste no caso de um timeout).</p>
 
 	<pre><code class="language-swift">
-	func getFirstFrom<T>(
+	func getFirstFrom&lt;T&gt;(
 		_ observable: T,
 		errorMessage: String = "Failed to get data from observable",
 		blockingTimeout: TimeInterval = 1,
