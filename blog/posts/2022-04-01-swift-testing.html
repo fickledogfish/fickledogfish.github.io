@@ -83,17 +83,17 @@
 
 	<h2><code class="language-swift">getFirstFrom&lt;T&gt;(driver:) -&gt; T</code></h2>
 
-	<p>Essa surgiu quando nos deparamos com uma classe repleta de <span class="type-name">BehaviorRelay</span>s e <span class="type-name">Driver</span>s; ela abstrai o uso do <span class="tool-name">RxBlocking</span> e retorna o primeiro evento emitido por eles ou falha o teste no caso de um timeout.</p>
+	<p>Essa surgiu quando nos deparamos com uma classe repleta de <span class="type-name">BehaviorRelay</span>s e <span class="type-name">Driver</span>s; ela, através do <code class="language-swift">T: ObservableConvertibleType</code>, abstrai o uso do <span class="tool-name">RxBlocking</span> para qualquer coisa convertível a um observável, retornando o primeiro evento emitido por eles (ou falhando o teste no caso de um timeout).</p>
 
 	<pre><code class="language-swift">
-	func getFirstFrom&lt;T&gt;(
-		driver: Driver&lt;T&gt;,
-		errorMessage: String = "Failed to get data from driver",
+	func getFirstFrom<T>(
+		_ observable: T,
+		errorMessage: String = "Failed to get data from observable",
 		blockingTimeout: TimeInterval = 1,
-		file: StaticString = &#35;filePath,
-		line: UInt = &#35;line
-	) -> T? {
-		let result = try? driver
+		file: StaticString = #filePath,
+		line: UInt = #line
+	) -> T.Element? where T: ObservableConvertibleType {
+		let result = try? observable
 			.toBlocking(timeout: blockingTimeout)
 			.first()
 	
@@ -130,7 +130,7 @@
 	}
 	</code></pre>
 
-	<p>Essa função é análoga ao <a href="https://doc.rust-lang.org/std/macro.unimplemented.html">unimplemented!()</a>, exceto que, ao invés de quebrar o programa, ela termina a execução do programa imediatamente depois de falhar o teste.</p>
+	<p>Essa função é análoga ao <a href="https://doc.rust-lang.org/std/macro.unimplemented.html">unimplemented!()</a>, exceto que, ao invés de quebrar o programa, ela termina a execução dele imediatamente depois de falhar o teste.</p>
 
 	<p>Por que interromper a execução? Porque a alternativa seria essa função retornar o tipo <span class="type-name">T</span> que a função mãe retorna, e eu não sei como implementar isso.</p>
 
