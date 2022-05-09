@@ -86,22 +86,23 @@
 	<p>Essa surgiu quando nos deparamos com uma classe repleta de <span class="type-name">BehaviorRelay</span>s e <span class="type-name">Driver</span>s; ela, através do <code class="language-swift">T: ObservableConvertibleType</code>, abstrai o uso do <span class="tool-name">RxBlocking</span> para qualquer coisa convertível a um observável, retornando o primeiro evento emitido por eles (ou falhando o teste no caso de um timeout).</p>
 
 	<pre><code class="language-swift">
-	func getFirstFrom&lt;T&gt;(
+	func getFirstFrom&lt;T: ObservableConvertibleType&gt;(
 		_ observable: T,
 		errorMessage: String = "Failed to get data from observable",
 		blockingTimeout: TimeInterval = 1,
 		file: StaticString = #filePath,
 		line: UInt = #line
-	) -> T.Element? where T: ObservableConvertibleType {
+	) -> T.Element {
 		let result = try? observable
 			.toBlocking(timeout: blockingTimeout)
 			.first()
 	
 		if result == nil {
 			XCTFail(errorMessage, file: file, line: line)
+			exit(1)
 		}
 	
-		return result
+		return result!
 	}
 	</code></pre>
 
